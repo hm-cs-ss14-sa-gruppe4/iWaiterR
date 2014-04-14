@@ -13,7 +13,8 @@ import javafx.fxml.Initializable;
 /**
  * FXML Controller class
  *
- * @author mtSA01
+ * @author Roman Baschmakov
+ * @version 1.0
  */
 public class NewItemWindowController implements Initializable {
 

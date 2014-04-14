@@ -1,4 +1,4 @@
-package iwaiter.bean;
+package iwaiter.model;
 
 import java.beans.*;
 import java.io.Serializable;
@@ -133,6 +133,7 @@ class OrderBean implements Serializable {
      */
     public void addOrderItem(ItemBean item) {
         this.orderItems.add(item);
+        /** @todo: propertySupport.firePropertyChange */
     }
     
     /**
@@ -143,16 +144,18 @@ class OrderBean implements Serializable {
     public void removeOrderItem(ItemBean item) throws RemoveOrderItemException {
         if (!orderItems.remove(item))
             throw new RemoveOrderItemException();
+        /** @todo: propertySupport.firePropertyChange */
     }
     
     /**
      * 
      * @param item 
      */
-    public void setOrderItem(ItemBean item) {
+    public void setOrderItem(ItemBean oldItem, ItemBean newItem) {
         for(ItemBean i : this.orderItems)
-            if (i.equals(item))
-                i = item;
+            if (i.equals(oldItem))
+                i = newItem;
+        /** @todo: propertySupport.firePropertyChange */
     }
     
     /**

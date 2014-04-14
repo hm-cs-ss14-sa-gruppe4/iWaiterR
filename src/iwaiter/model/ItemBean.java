@@ -1,4 +1,4 @@
-package iwaiter.bean;
+package iwaiter.model;
 
 import java.beans.*;
 import java.io.Serializable;
@@ -35,7 +35,7 @@ public class ItemBean implements Serializable {
         this.setName(name);
         this.setPrice(price);
     }
-
+    
     /**
      * ctor
      * @param item 

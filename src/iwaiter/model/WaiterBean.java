@@ -1,4 +1,4 @@
-package iwaiter.bean;
+package iwaiter.model;
 
 import java.beans.*;
 import java.io.Serializable;
