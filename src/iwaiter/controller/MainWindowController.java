@@ -20,9 +20,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
-import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -81,6 +79,8 @@ public class MainWindowController implements Initializable {
     
     /**
      * Initializes the controller class.
+     * @param url
+     * @param rb
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -105,14 +105,14 @@ public class MainWindowController implements Initializable {
         });
         
         // order list
-        colOrderNumber.setCellValueFactory(new PropertyValueFactory<OrderBean, String>("orderNumber"));
-        colOrderTableNumber.setCellValueFactory(new PropertyValueFactory<OrderBean, String>("tableNumber"));
-        colOrderSum.setCellValueFactory(new PropertyValueFactory<OrderBean, String>("sumOfMoney"));
-        colOrderFinalized.setCellValueFactory(new PropertyValueFactory<OrderBean, String>("finilized"));
+        colOrderNumber.setCellValueFactory(new PropertyValueFactory<OrderBean, String>(OrderBean.PROP_ORDER_NUMBER));
+        colOrderTableNumber.setCellValueFactory(new PropertyValueFactory<OrderBean, String>(OrderBean.PROP_TABLE_NUMBER));
+        colOrderSum.setCellValueFactory(new PropertyValueFactory<OrderBean, String>(OrderBean.PROP_SUM_OF_MONEY));
+        colOrderFinalized.setCellValueFactory(new PropertyValueFactory<OrderBean, Boolean>(OrderBean.PROP_FINALIZED));
         
         // order item list
-        colItemName.setCellValueFactory(new PropertyValueFactory<ItemBean, String>("name"));
-        colItemPrice.setCellValueFactory(new PropertyValueFactory<ItemBean, String>("price"));
+        colItemName.setCellValueFactory(new PropertyValueFactory<ItemBean, String>(ItemBean.PROP_NAME));
+        colItemPrice.setCellValueFactory(new PropertyValueFactory<ItemBean, String>(ItemBean.PROP_PRICE));
         
         /*txtOrderItemName.setOnMouseClicked(new EventHandler<MouseEvent>() {
             @Override
@@ -133,13 +133,24 @@ public class MainWindowController implements Initializable {
         availableItems.add(new ItemBean("Swimming Pool",600));
         availableItems.add(new ItemBean("Zombie",650));
         
-        for (String s : "Thomas|Johnson|Peter|Alfred".split("\\|"))
-            waiters.add(new WaiterBean(s));
+        for (String s : "Thomas|Johnson|Peter|Alfred".split("\\|")) {
+            WaiterBean waiter = new WaiterBean(s);
+            waiters.add(waiter);
+            for (int i = 0; i < Math.pow(Math.random() + 0.9, 6); i++) {
+                waiter.addOrder(new OrderBean(waiter, (int)(Math.random()*10000), (int)(Math.random()*20+1), Math.random() < 0.3));
+                System.out.println(waiter.getOrders().get(waiter.getOrders().size()-1));
+            }
+        }
         
         // load data in view
         lstWaiter.setItems(FXCollections.observableList(waiters));
-        tblOrderItem.setItems(FXCollections.observableList(availableItems));
         
+    }
+    
+    @FXML
+    private void lstWaiter_clicked(MouseEvent t) {
+        WaiterBean waiter = (WaiterBean) lstWaiter.getSelectionModel().getSelectedItem();
+        tblOrder.setItems(FXCollections.observableList(waiter.getOrders()));
     }
     
     @FXML

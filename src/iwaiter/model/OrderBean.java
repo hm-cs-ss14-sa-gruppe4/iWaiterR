@@ -39,6 +39,41 @@ public class OrderBean implements Serializable {
     public OrderBean(WaiterBean waiter) {
         this.propertySupport = new PropertyChangeSupport(this);
         this.setWaiter(waiter);
+        this.setOrderNumber(12345);
+        this.setTableNumber(42);
+        this.setSumOfMoney(0);
+        this.setFinalize(false);
+    }
+    
+    /**
+     * 
+     * @param waiter
+     * @param orderNumber
+     * @param tableNumber 
+     */
+    public OrderBean(WaiterBean waiter, int orderNumber, int tableNumber) {
+        this.propertySupport = new PropertyChangeSupport(this);
+        this.setWaiter(waiter);
+        this.setOrderNumber(orderNumber);
+        this.setTableNumber(tableNumber);
+        this.setSumOfMoney(0);
+        this.setFinalize(false);
+    }
+    
+    /**
+     * 
+     * @param waiter
+     * @param orderNumber
+     * @param tableNumber
+     * @param finalized 
+     */
+    public OrderBean(WaiterBean waiter, int orderNumber, int tableNumber, boolean finalized) {
+        this.propertySupport = new PropertyChangeSupport(this);
+        this.setWaiter(waiter);
+        this.setOrderNumber(orderNumber);
+        this.setTableNumber(tableNumber);
+        this.setSumOfMoney(0);
+        this.setFinalize(finalized);
     }
     
     /**
@@ -53,7 +88,7 @@ public class OrderBean implements Serializable {
      * 
      * @param value 
      */
-    public void setOrderNumber(int value) {
+    public final void setOrderNumber(int value) {
         int oldValue = this.orderNumber;
         this.orderNumber = value;
         this.propertySupport.firePropertyChange(PROP_ORDER_NUMBER, oldValue, this.orderNumber);
@@ -64,14 +99,14 @@ public class OrderBean implements Serializable {
      * @return 
      */
     public int getTableNumber() {
-        return this.orderNumber;
+        return this.tableNumber;
     }
     
     /**
      * 
      * @param value 
      */
-    public void setTableNumber(int value) {
+    public final void setTableNumber(int value) {
         int oldValue = this.tableNumber;
         this.tableNumber = value;
         this.propertySupport.firePropertyChange(PROP_TABLE_NUMBER, oldValue, this.tableNumber);
@@ -89,7 +124,7 @@ public class OrderBean implements Serializable {
      * 
      * @param value 
      */
-    public void setSumOfMoney(int value) {
+    public final void setSumOfMoney(int value) {
         int oldValue = this.sumOfMoney;
         this.sumOfMoney = value;
         this.propertySupport.firePropertyChange(PROP_SUM_OF_MONEY, oldValue, this.sumOfMoney);
@@ -114,7 +149,7 @@ public class OrderBean implements Serializable {
      * 
      * @param value 
      */
-    public void setFinalize(boolean value) {
+    public final void setFinalize(boolean value) {
         boolean oldValue = this.finalized;
         this.finalized = value;
         this.propertySupport.firePropertyChange(PROP_FINALIZED, oldValue, this.finalized);
