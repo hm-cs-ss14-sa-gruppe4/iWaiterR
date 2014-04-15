@@ -42,13 +42,16 @@ public class MainWindowController implements Initializable {
     /**
      * Model
      */
-    ArrayList<WaiterBean> waiters = new ArrayList<>();
-    ArrayList<ItemBean> availableItems = new ArrayList<>();
-    ArrayList<TableBean> tables = new ArrayList<>();
+    ArrayList<WaiterBean> waiters;
+    ArrayList<ItemBean> availableItems;
+    ArrayList<TableBean> tables;
     
     /**
      * View
      */
+    
+    @FXML
+    private Button cmdImport;
     
     @FXML
     private ListView lstWaiter;
@@ -99,9 +102,9 @@ public class MainWindowController implements Initializable {
     /**
      * Controller fields
      */
-    WaiterBean curWaiter;
-    OrderBean curOrder;
-    ItemBean curItem;
+    WaiterBean curWaiter; // pointer for currently selected waiter
+    OrderBean curOrder; // -||- order
+    ItemBean curItem; // -||- order item
     
     private boolean mutexNoEvent = false; // flag for fxml objects to not interact
     
@@ -163,24 +166,37 @@ public class MainWindowController implements Initializable {
             }
         });
         
-        // load data
-        loadData();
-        
     }
     
     /**
-     * Loads data to work with. Currently running on test with example data.
+     * Event for importing qualitative data.
+     * (List of waiters, list of tables and list or available order items.)
+     * @param t 
      */
-    private void loadData () {
+    @FXML
+    private void cmdImport_click(Event t) {
+        
+        // (re-)initialize models
+        waiters = new ArrayList<>();
+        availableItems = new ArrayList<>();
+        tables = new ArrayList<>();
+        
+        curWaiter = null;
+        curOrder = null;
+        curItem = null;
         
         // randomly generated example data
-        for (int i = 1; i <= 10; i++)
+        for (int i = 1; i <= (int)(Math.random()*8)+5; i++)
             tables.add(new TableBean(i));
+        
+        System.out.println("tables: " + tables);
         
         availableItems.add(new ItemBean("Pina Colada",500));
         availableItems.add(new ItemBean("Bloody Mary",550));
         availableItems.add(new ItemBean("Swimming Pool",600));
         availableItems.add(new ItemBean("Zombie",650));
+        
+        System.out.println("availableItems: " + availableItems);
         
         for (String s : "Thomas|Johnson|Peter|Alfred".split("\\|")) {
             WaiterBean waiter = new WaiterBean(s);
@@ -196,9 +212,17 @@ public class MainWindowController implements Initializable {
             }
         }
         
-        // load qualitative data in view
+        System.out.println("waiters: " + waiters);
+        
+        // load qualitative data in sub-views
         lstWaiter.setItems(FXCollections.observableList(waiters));
         lstTable.setItems(FXCollections.observableList(tables));
+        
+        // (re-)set sub-views for quantitative data
+        tblOrder.setItems(null);
+        tblOrderItem.setItems(null);
+        txtOrderItemName.setText(null);
+        txtOrderItemPrice.setText(null);
         
     }
     
