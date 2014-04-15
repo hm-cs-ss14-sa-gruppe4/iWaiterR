@@ -130,7 +130,7 @@ public class WaiterBean implements Serializable {
     /**
      * 
      */
-    private static class RemoveOrderException extends Exception {
+    public static class RemoveOrderException extends Exception {
 
         public RemoveOrderException() {
         }

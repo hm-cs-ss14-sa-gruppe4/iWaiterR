@@ -15,13 +15,15 @@ public class OrderBean implements Serializable {
     private int orderNumber;
     public static final String PROP_ORDER_NUMBER= "orderNumber";
     
-    private int tableNumber;
-    public static final String PROP_TABLE_NUMBER = "tableNumber";
+    private TableBean table;
+    public static final String PROP_TABLE = "table";
     
-    private int sumOfMoney;
+    private int sumOfMoney = 0;
     public static final String PROP_SUM_OF_MONEY = "sumOfMoney";
     
-    private boolean finalized;
+    private boolean calculated = false; // to not calculate the sum reduntantly
+    
+    private boolean finalized = false;
     public static final String PROP_FINALIZED = "finilized";
     
     private ArrayList<ItemBean> orderItems = new ArrayList<>();
@@ -40,9 +42,7 @@ public class OrderBean implements Serializable {
         this.propertySupport = new PropertyChangeSupport(this);
         this.setWaiter(waiter);
         this.setOrderNumber(12345);
-        this.setTableNumber(42);
-        this.setSumOfMoney(0);
-        this.setFinalize(false);
+        this.setTable(new TableBean(42));
     }
     
     /**
@@ -51,13 +51,11 @@ public class OrderBean implements Serializable {
      * @param orderNumber
      * @param tableNumber 
      */
-    public OrderBean(WaiterBean waiter, int orderNumber, int tableNumber) {
+    public OrderBean(WaiterBean waiter, int orderNumber, TableBean tableNumber) {
         this.propertySupport = new PropertyChangeSupport(this);
         this.setWaiter(waiter);
         this.setOrderNumber(orderNumber);
-        this.setTableNumber(tableNumber);
-        this.setSumOfMoney(0);
-        this.setFinalize(false);
+        this.setTable(tableNumber);
     }
     
     /**
@@ -67,12 +65,11 @@ public class OrderBean implements Serializable {
      * @param tableNumber
      * @param finalized 
      */
-    public OrderBean(WaiterBean waiter, int orderNumber, int tableNumber, boolean finalized) {
+    public OrderBean(WaiterBean waiter, int orderNumber, TableBean tableNumber, boolean finalized) {
         this.propertySupport = new PropertyChangeSupport(this);
         this.setWaiter(waiter);
         this.setOrderNumber(orderNumber);
-        this.setTableNumber(tableNumber);
-        this.setSumOfMoney(0);
+        this.setTable(tableNumber);
         this.setFinalize(finalized);
     }
     
@@ -98,18 +95,18 @@ public class OrderBean implements Serializable {
      * 
      * @return 
      */
-    public int getTableNumber() {
-        return this.tableNumber;
+    public TableBean getTable() {
+        return this.table;
     }
     
     /**
      * 
      * @param value 
      */
-    public final void setTableNumber(int value) {
-        int oldValue = this.tableNumber;
-        this.tableNumber = value;
-        this.propertySupport.firePropertyChange(PROP_TABLE_NUMBER, oldValue, this.tableNumber);
+    public final void setTable(TableBean value) {
+        TableBean oldValue = this.table;
+        this.table = value;
+        this.propertySupport.firePropertyChange(PROP_TABLE, oldValue, this.table);
     }
     
     /**
@@ -117,6 +114,8 @@ public class OrderBean implements Serializable {
      * @return sumOfMoney
      */
     public int getSumOfMoney() {
+        if (!calculated)
+            this.calculateSum();
         return this.sumOfMoney;
     }
     
@@ -124,9 +123,11 @@ public class OrderBean implements Serializable {
      * 
      * @param value 
      */
-    public final void setSumOfMoney(int value) {
+    private void calculateSum() {
         int oldValue = this.sumOfMoney;
-        this.sumOfMoney = value;
+        this.sumOfMoney = 0;
+        for (ItemBean i : orderItems)
+            this.sumOfMoney += i.getPrice();
         this.propertySupport.firePropertyChange(PROP_SUM_OF_MONEY, oldValue, this.sumOfMoney);
     }
     
@@ -170,17 +171,19 @@ public class OrderBean implements Serializable {
     public void addOrderItem(ItemBean item) {
         this.orderItems.add(item);
         /** @todo: propertySupport.firePropertyChange */
+        this.calculated = false;
     }
     
     /**
      * 
      * @param item
-     * @throws iwaiter.bean.OrderBean.RemoveOrderItemException 
+     * @throws iwaiter.model.OrderBean.RemoveOrderItemException 
      */
     public void removeOrderItem(ItemBean item) throws RemoveOrderItemException {
         if (!orderItems.remove(item))
             throw new RemoveOrderItemException();
         /** @todo: propertySupport.firePropertyChange */
+        this.calculated = false;
     }
     
     /**
@@ -193,6 +196,7 @@ public class OrderBean implements Serializable {
             if (i.equals(oldItem))
                 i = newItem;
         /** @todo: propertySupport.firePropertyChange */
+        this.calculated = false;
     }
     
     /**
@@ -217,7 +221,7 @@ public class OrderBean implements Serializable {
     public String toString() {
         return "OrderBean{" + 
                 "orderNumber=" + this.orderNumber + 
-                ", tableNumber=" + this.tableNumber + 
+                ", tableNumber=" + this.table + 
                 ", sumOfMoney=" + this.sumOfMoney + 
                 ", finalized=" + this.finalized + 
                 ", orderItems=" + this.orderItems.size() + 
@@ -233,7 +237,7 @@ public class OrderBean implements Serializable {
             return false;
         final OrderBean other = (OrderBean) obj;
         return this.orderNumber != other.orderNumber 
-                && this.tableNumber != other.tableNumber
+                && this.table != other.table
                 && this.sumOfMoney != other.sumOfMoney
                 && this.finalized != other.finalized
                 && Objects.equals(this.orderItems, other.orderItems)
@@ -244,7 +248,7 @@ public class OrderBean implements Serializable {
     public int hashCode() {
         int hash = 3;
         hash = 67 * hash + this.orderNumber;
-        hash = 67 * hash + this.tableNumber;
+        hash = 67 * hash + Objects.hashCode(this.table);
         hash = 67 * hash + this.sumOfMoney;
         hash = 67 * hash + (this.finalized ? 1 : 0);
         hash = 67 * hash + Objects.hashCode(this.orderItems);
@@ -271,7 +275,7 @@ public class OrderBean implements Serializable {
     /**
      * 
      */
-    private static class RemoveOrderItemException extends Exception {
+    public static class RemoveOrderItemException extends Exception {
 
         public RemoveOrderItemException() {
         }
