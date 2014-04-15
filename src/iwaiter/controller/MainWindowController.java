@@ -46,13 +46,10 @@ public class MainWindowController implements Initializable {
     ArrayList<ItemBean> availableItems = new ArrayList<>();
     ArrayList<TableBean> tables = new ArrayList<>();
     
-    WaiterBean curWaiter;
-    OrderBean curOrder;
-    ItemBean curItem;
-    
     /**
      * View
      */
+    
     @FXML
     private ListView lstWaiter;
     
@@ -98,6 +95,15 @@ public class MainWindowController implements Initializable {
     private TextField txtOrderItemName;
     @FXML
     private TextField txtOrderItemPrice;
+    
+    /**
+     * Controller fields
+     */
+    WaiterBean curWaiter;
+    OrderBean curOrder;
+    ItemBean curItem;
+    
+    private boolean mutexNoEvent = false; // flag for fxml objects to not interact
     
     /**
      * Initializes the controller class.
@@ -219,10 +225,12 @@ public class MainWindowController implements Initializable {
             return;
         curOrder = (OrderBean) tblOrder.getSelectionModel().getSelectedItem();
         txtOrderNumber.setText(String.valueOf(curOrder.getOrderNumber()));
-        lstTable.getSelectionModel().clearSelection();
-        lstTable.setValue(curOrder.getTable());
         //cmdFinalizeOrder.setDisable(!order.isFinalized());
         tblOrderItem.setItems(FXCollections.observableList(curOrder.getOrderItems()));
+        //lstTable.getSelectionModel().clearSelection();
+        mutexNoEvent = true;
+        lstTable.setValue(curOrder.getTable());
+        mutexNoEvent = false;
     }
     
     /**
@@ -273,7 +281,8 @@ public class MainWindowController implements Initializable {
      */
     @FXML
     private void lstTable_change(Event t) {
-        if (curOrder == null || lstTable.getSelectionModel().getSelectedItem() == null)
+        if (mutexNoEvent || curOrder == null || 
+                lstTable.getSelectionModel().getSelectedItem() == null)
             return;
         curOrder.setTable((TableBean) lstTable.getSelectionModel().getSelectedItem());
         refreshColumn(colOrderTableNumber);

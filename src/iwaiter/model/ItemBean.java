@@ -17,7 +17,7 @@ public class ItemBean implements Serializable {
     private int price;
     public static final String PROP_PRICE = "price";
     
-    private PropertyChangeSupport propertySupport;
+    private PropertyChangeSupport propertySupport; // why does NetBeans want it to be final?
     
     /**
      * ctor
