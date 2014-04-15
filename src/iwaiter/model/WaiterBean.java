@@ -3,6 +3,7 @@ package iwaiter.model;
 import java.beans.*;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Objects;
 
 /**
  *
@@ -65,7 +66,7 @@ public class WaiterBean implements Serializable {
     /**
      * 
      * @param order
-     * @throws iwaiter.bean.WaiterBean.RemoveOrderException 
+     * @throws iwaiter.model.WaiterBean.RemoveOrderException 
      */
     public void removeOrder(OrderBean order) throws RemoveOrderException {
         if (!orders.remove(order))
@@ -74,12 +75,40 @@ public class WaiterBean implements Serializable {
     
     /**
      * 
-     * @param order 
+     * @param oldOrder
+     * @param newOrder 
      */
-    public void setOrder(OrderBean order) {
+    public void setOrder(OrderBean oldOrder, OrderBean newOrder) {
         for(OrderBean i : this.orders)
-            if (i.equals(order))
-                i = order;
+            if (i.equals(oldOrder))
+                i = newOrder;
+    }
+    
+    @Override
+    public String toString() {
+        return "WaiterBean{" + 
+                "name=" + this.name + 
+                ", orders=" + this.orders.size() + 
+                '}';
+    }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null)
+            return false;
+        if (this.getClass() != obj.getClass())
+            return false;
+        final WaiterBean other = (WaiterBean) obj;
+        return this.name.equals(other.name) 
+                && this.orders.equals(other.orders);
+    }
+    
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 71 * hash + Objects.hashCode(this.name);
+        hash = 71 * hash + Objects.hashCode(this.orders);
+        return hash;
     }
     
     /**

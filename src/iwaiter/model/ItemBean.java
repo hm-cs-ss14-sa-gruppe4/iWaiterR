@@ -2,6 +2,7 @@ package iwaiter.model;
 
 import java.beans.*;
 import java.io.Serializable;
+import java.util.Objects;
 
 /**
  *
@@ -23,6 +24,8 @@ public class ItemBean implements Serializable {
      */
     public ItemBean() {
         this.propertySupport = new PropertyChangeSupport(this);
+        this.setName("new item");
+        this.setPrice(0);
     }
     
     /**
@@ -80,6 +83,33 @@ public class ItemBean implements Serializable {
         int oldValue = this.price;
         this.price = value;
         this.propertySupport.firePropertyChange(PROP_PRICE, oldValue, this.price);
+    }
+    
+    @Override
+    public String toString() {
+        return "ItemBean{" + 
+                "name=" + this.name + 
+                ", price=" + this.price + 
+                '}';
+    }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null)
+            return false;
+        if (this.getClass() != obj.getClass())
+            return false;
+        final ItemBean other = (ItemBean) obj;
+        return this.name.equals(other.getName())
+                && this.price != other.price;
+    }
+    
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 59 * hash + Objects.hashCode(this.name);
+        hash = 59 * hash + this.price;
+        return hash;
     }
     
     /**

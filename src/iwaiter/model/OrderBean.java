@@ -3,13 +3,14 @@ package iwaiter.model;
 import java.beans.*;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Objects;
 
 /**
  *
  * @author Roman Baschmakov
  * @version 1.0
  */
-class OrderBean implements Serializable {
+public class OrderBean implements Serializable {
     
     private int orderNumber;
     public static final String PROP_ORDER_NUMBER= "orderNumber";
@@ -149,7 +150,8 @@ class OrderBean implements Serializable {
     
     /**
      * 
-     * @param item 
+     * @param oldItem
+     * @param newItem 
      */
     public void setOrderItem(ItemBean oldItem, ItemBean newItem) {
         for(ItemBean i : this.orderItems)
@@ -174,6 +176,45 @@ class OrderBean implements Serializable {
         WaiterBean oldValue = this.waiter;
         this.waiter = value;
         this.propertySupport.firePropertyChange(PROP_WAITER, oldValue, this.waiter);
+    }
+    
+    @Override
+    public String toString() {
+        return "OrderBean{" + 
+                "orderNumber=" + this.orderNumber + 
+                ", tableNumber=" + this.tableNumber + 
+                ", sumOfMoney=" + this.sumOfMoney + 
+                ", finalized=" + this.finalized + 
+                ", orderItems=" + this.orderItems.size() + 
+                ", waiter=" + this.waiter.getName() + 
+                '}';
+    }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null)
+            return false;
+        if (this.getClass() != obj.getClass())
+            return false;
+        final OrderBean other = (OrderBean) obj;
+        return this.orderNumber != other.orderNumber 
+                && this.tableNumber != other.tableNumber
+                && this.sumOfMoney != other.sumOfMoney
+                && this.finalized != other.finalized
+                && Objects.equals(this.orderItems, other.orderItems)
+                && Objects.equals(this.waiter, other.waiter);
+    }
+    
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 67 * hash + this.orderNumber;
+        hash = 67 * hash + this.tableNumber;
+        hash = 67 * hash + this.sumOfMoney;
+        hash = 67 * hash + (this.finalized ? 1 : 0);
+        hash = 67 * hash + Objects.hashCode(this.orderItems);
+        hash = 67 * hash + Objects.hashCode(this.waiter);
+        return hash;
     }
     
     /**
