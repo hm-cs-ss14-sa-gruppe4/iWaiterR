@@ -10,7 +10,7 @@
 
 <AnchorPane id="AnchorPane" prefHeight="458.0" prefWidth="589.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="iwaiter.controller.MainWindowController">
   <children>
-    <SplitPane dividerPositions="0.29471890971039183" focusTraversable="true" prefHeight="404.0" prefWidth="473.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="-1.0" AnchorPane.rightAnchor="1.0" AnchorPane.topAnchor="0.0">
+    <SplitPane dividerPositions="0.29471890971039183" focusTraversable="true" prefHeight="404.0" prefWidth="589.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="-1.0" AnchorPane.topAnchor="0.0">
       <items>
         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
           <children>
@@ -25,12 +25,12 @@
               <items>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
                   <children>
-                    <TableView fx:id="tblOrder" editable="false" onMouseClicked="#tblOrder_select" prefHeight="126.0" prefWidth="234.0" tableMenuButtonVisible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="109.0" AnchorPane.topAnchor="0.0">
+                    <TableView fx:id="tblOrder" editable="false" onMouseClicked="#tblOrder_select" prefHeight="150.0" prefWidth="300.0" tableMenuButtonVisible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="109.0" AnchorPane.topAnchor="27.0">
                       <columns>
-                        <TableColumn id="colOrderNumber" maxWidth="5000.0" minWidth="60.0" prefWidth="90.0" text="Bestellnummer" fx:id="colOrderNumber" />
-                        <TableColumn minWidth="40.0" prefWidth="40.0" text="Tisch" fx:id="colOrderTableNumber" />
-                        <TableColumn maxWidth="5000.0" minWidth="50.0" prefWidth="60.0" text="Summe" fx:id="colOrderSum" />
-                        <TableColumn maxWidth="5000.0" minWidth="40.0" prefWidth="100.0" text="Abgeschlossen" fx:id="colOrderFinalized" />
+                        <TableColumn id="colOrderNumber" maxWidth="10000.0" minWidth="100.0" prefWidth="100.0" text="Bestellnummer" fx:id="colOrderNumber" />
+                        <TableColumn minWidth="50.0" prefWidth="50.0" text="Tisch" fx:id="colOrderTableNumber" />
+                        <TableColumn maxWidth="5000.0" minWidth="50.0" prefWidth="50.0" text="Summe" fx:id="colOrderSum" />
+                        <TableColumn maxWidth="10000.0" minWidth="100.0" prefWidth="100.0" text="Abgeschlossen" fx:id="colOrderFinalized" />
                       </columns>
                     </TableView>
                     <Button fx:id="cmdNewOrder" layoutY="14.0" mnemonicParsing="false" onAction="#cmdNewOrder_Click" text="Neu" AnchorPane.rightAnchor="53.0" />
@@ -38,14 +38,16 @@
                     <Button fx:id="cmdPrintOrder" layoutY="129.0" mnemonicParsing="false" text="Ausdrucken" AnchorPane.rightAnchor="13.0" />
                     <Label layoutX="243.0" layoutY="14.0" text="" />
                     <Button fx:id="cmdFinalizeOrder" layoutY="78.0" mnemonicParsing="false" onAction="#cmdFinalizeOrder_click" prefHeight="43.0" prefWidth="84.0" text="Bestellung abschließen" wrapText="true" AnchorPane.rightAnchor="12.0" />
+                    <Label id="lblOrders" fx:id="lblWaiter" layoutY="6.0" prefWidth="188.0" text="lblWaiter" AnchorPane.rightAnchor="111.0" />
+                    <Label id="lblOrders" layoutX="14.0" layoutY="6.0" prefWidth="96.0" text="Bestellungen von" />
                   </children>
                 </AnchorPane>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
                   <children>
                     <TableView fx:id="tblOrderItem" onMouseClicked="#tblOrderItem_select" prefHeight="128.0" prefWidth="234.0" AnchorPane.bottomAnchor="44.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="109.0" AnchorPane.topAnchor="48.0">
                       <columns>
-                        <TableColumn minWidth="100.0" prefWidth="160.0" text="Bestelleinheit" fx:id="colItemName" />
-                        <TableColumn maxWidth="5000.0" minWidth="50.0" prefWidth="60.0" text="Preis" fx:id="colItemPrice" />
+                        <TableColumn maxWidth="25000.0" minWidth="250.0" prefWidth="250.0" text="Bestelleinheit" fx:id="colItemName" />
+                        <TableColumn maxWidth="5000.0" minWidth="50.0" prefWidth="50.0" text="Preis" fx:id="colItemPrice" />
                       </columns>
                     </TableView>
                     <Button fx:id="cmdNewOrderItem" layoutY="48.0" mnemonicParsing="false" onAction="#cmdNewOrderItem_Click" text="Neu" AnchorPane.rightAnchor="56.0" />

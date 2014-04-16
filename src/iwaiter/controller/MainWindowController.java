@@ -22,6 +22,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TableColumn;
@@ -55,6 +56,9 @@ public class MainWindowController implements Initializable {
     
     @FXML
     private ListView lstWaiter;
+    
+    @FXML
+    private Label lblWaiter;
     
     @FXML
     private TableView tblOrder; // list of orders (of a waiter)
@@ -115,7 +119,7 @@ public class MainWindowController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-       
+        
         // waiter list
         lstWaiter.setCellFactory(new Callback<ListView, ListCell<WaiterBean>>() {
             
@@ -166,6 +170,10 @@ public class MainWindowController implements Initializable {
             }
         });
         
+        // default view settings
+        tblOrder.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        tblOrderItem.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        lstWaiter_unload();
     }
     
     /**
@@ -180,10 +188,6 @@ public class MainWindowController implements Initializable {
         waiters = new ArrayList<>();
         availableItems = new ArrayList<>();
         tables = new ArrayList<>();
-        
-        curWaiter = null;
-        curOrder = null;
-        curItem = null;
         
         // randomly generated example data
         for (int i = 1; i <= (int)(Math.random()*8)+5; i++)
@@ -214,16 +218,12 @@ public class MainWindowController implements Initializable {
         
         System.out.println("waiters: " + waiters);
         
+        // (re-)set sub-views for quantitative data
+        tblOrder_unload();
+        
         // load qualitative data in sub-views
         lstWaiter.setItems(FXCollections.observableList(waiters));
         lstTable.setItems(FXCollections.observableList(tables));
-        
-        // (re-)set sub-views for quantitative data
-        tblOrder.setItems(null);
-        tblOrderItem.setItems(null);
-        txtOrderItemName.setText(null);
-        txtOrderItemPrice.setText(null);
-        
     }
     
     /**
@@ -235,8 +235,25 @@ public class MainWindowController implements Initializable {
         if (lstWaiter.getSelectionModel().getSelectedItem() == null)
             return;
         curWaiter = (WaiterBean) lstWaiter.getSelectionModel().getSelectedItem();
+        //curWaiter.addPropertyChangeListener(new Property());
+        
+        lblWaiter.setText(curWaiter.getName());
         tblOrder.setItems(FXCollections.observableList(curWaiter.getOrders()));
-        tblOrderItem.setItems(null);
+        tblOrder.setDisable(false);
+        cmdNewOrder.setDisable(false);
+        
+        tblOrderItem_unload();
+    }
+    
+    /**
+     * Reset references connected to the waiter list.
+     */
+    private void lstWaiter_unload() {
+        curWaiter = null;
+        
+        lstWaiter.setItems(null);
+        
+        tblOrder_unload();
     }
     
     /**
@@ -248,13 +265,35 @@ public class MainWindowController implements Initializable {
         if (tblOrder.getSelectionModel().getSelectedItem() == null)
             return;
         curOrder = (OrderBean) tblOrder.getSelectionModel().getSelectedItem();
+        
+        cmdDelOrder.setDisable(false);
+        cmdFinalizeOrder.setDisable(curOrder.isFinalized());
         txtOrderNumber.setText(String.valueOf(curOrder.getOrderNumber()));
-        //cmdFinalizeOrder.setDisable(!order.isFinalized());
-        tblOrderItem.setItems(FXCollections.observableList(curOrder.getOrderItems()));
-        //lstTable.getSelectionModel().clearSelection();
+        txtOrderNumber.setDisable(false);
         mutexNoEvent = true;
         lstTable.setValue(curOrder.getTable());
         mutexNoEvent = false;
+        lstTable.setDisable(false);
+        tblOrderItem.setItems(FXCollections.observableList(curOrder.getOrderItems()));
+        //lstTable.getSelectionModel().clearSelection();
+        tblOrderItem.setDisable(false);
+        cmdNewOrderItem.setDisable(false);
+        
+        txtOrderItemName_unload();
+    }
+    
+    /**
+     * Resets references connected to the order list.
+     */
+    private void tblOrder_unload() {
+        curOrder = null;
+        
+        lblWaiter.setText("(kein Kellner gewählt)");
+        tblOrder.setItems(null);
+        tblOrder.setDisable(true);
+        cmdNewOrder.setDisable(true);
+        
+        tblOrderItem_unload();
     }
     
     /**
@@ -281,6 +320,8 @@ public class MainWindowController implements Initializable {
         tblOrder.getItems().remove(tblOrder.getSelectionModel().getSelectedIndex());
         // question: why does the Bean delete its item here as well?
         tblOrderItem.setItems(null);
+        if (tblOrder.getSelectionModel().getSelectedItem() == null)
+            tblOrderItem_unload();
     }
     
     /**
@@ -322,6 +363,7 @@ public class MainWindowController implements Initializable {
             return;
         if (!curOrder.isFinalized())
             curOrder.setFinalize();
+        cmdFinalizeOrder.setDisable(true);
         refreshColumn(colOrderFinalized);
     }
     
@@ -349,6 +391,8 @@ public class MainWindowController implements Initializable {
         tblOrderItem.getItems().remove(tblOrderItem.getSelectionModel().getSelectedIndex());
         // question: why does the Bean delete its item here as well?
         refreshColumn(colOrderSum);
+        if (tblOrderItem.getSelectionModel().getSelectedItem() == null)
+            txtOrderItemName_unload();
     }
     
     /**
@@ -361,8 +405,29 @@ public class MainWindowController implements Initializable {
                 tblOrderItem.getSelectionModel().getSelectedItem() == null)
             return;
         curItem = (ItemBean) tblOrderItem.getSelectionModel().getSelectedItem();
+        
+        cmdDelOrderItem.setDisable(false);
         txtOrderItemName.setText(curItem.getName());
+        txtOrderItemName.setDisable(false);
         txtOrderItemPrice.setText(String.valueOf(curItem.getPrice()));
+        txtOrderItemPrice.setDisable(false);
+    }
+    
+    /**
+     * Resets references connected to the order list.
+     */
+    private void tblOrderItem_unload() {
+        curItem = null;
+        
+        cmdDelOrder.setDisable(true);
+        cmdFinalizeOrder.setDisable(true);
+        txtOrderNumber.setDisable(true);
+        lstTable.setDisable(true);
+        tblOrderItem.setItems(null);
+        tblOrderItem.setDisable(true);
+        cmdNewOrderItem.setDisable(true);
+        
+        txtOrderItemName_unload();
     }
     
     /**
@@ -375,6 +440,15 @@ public class MainWindowController implements Initializable {
             return;
         curItem.setName(txtOrderItemName.getText());
         refreshColumn(colItemName);
+    }
+    
+    /**
+     * Resets references connected to the order item list.
+     */
+    private void txtOrderItemName_unload() {
+        cmdDelOrderItem.setDisable(true);
+        txtOrderItemName.setDisable(true);
+        txtOrderItemPrice.setDisable(true);
     }
     
     /**

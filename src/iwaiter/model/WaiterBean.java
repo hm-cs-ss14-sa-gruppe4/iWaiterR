@@ -126,7 +126,7 @@ public class WaiterBean implements Serializable {
     public void removePropertyChangeListener(PropertyChangeListener listener) {
         this.propertySupport.removePropertyChangeListener(listener);
     }
-
+    
     /**
      * 
      */

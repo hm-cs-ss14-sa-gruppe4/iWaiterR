@@ -26,7 +26,7 @@ public class TableBean implements Serializable {
     public TableBean(int tableNumber) {
         this.setTableNumber(tableNumber);
     }
-
+    
     /**
      * Get the value of tableNumber
      *
