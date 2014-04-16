@@ -10,6 +10,8 @@ import iwaiter.model.ItemBean;
 import iwaiter.model.OrderBean;
 import iwaiter.model.TableBean;
 import iwaiter.model.WaiterBean;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.net.URL;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -235,7 +237,6 @@ public class MainWindowController implements Initializable {
         if (lstWaiter.getSelectionModel().getSelectedItem() == null)
             return;
         curWaiter = (WaiterBean) lstWaiter.getSelectionModel().getSelectedItem();
-        //curWaiter.addPropertyChangeListener(new Property());
         
         lblWaiter.setText(curWaiter.getName());
         tblOrder.setItems(FXCollections.observableList(curWaiter.getOrders()));
