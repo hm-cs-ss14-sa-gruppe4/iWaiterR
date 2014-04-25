@@ -160,7 +160,7 @@ public class OrderBean implements Serializable {
      * 
      * @return orderItems
      */
-    public final ArrayList<ItemBean> getOrderItems() {
+    public ArrayList<ItemBean> getOrderItems() {
         return this.orderItems;
     }
     
@@ -231,15 +231,17 @@ public class OrderBean implements Serializable {
     
     @Override
     public boolean equals(Object obj) {
+        if (obj == this)
+            return true;
         if (obj == null)
             return false;
         if (this.getClass() != obj.getClass())
             return false;
         final OrderBean other = (OrderBean) obj;
-        return this.orderNumber != other.orderNumber 
-                && this.table != other.table
-                && this.sumOfMoney != other.sumOfMoney
-                && this.finalized != other.finalized
+        return this.orderNumber == other.orderNumber 
+                && this.table == other.table
+                && this.sumOfMoney == other.sumOfMoney
+                && this.finalized == other.finalized
                 && Objects.equals(this.orderItems, other.orderItems)
                 && Objects.equals(this.waiter, other.waiter);
     }

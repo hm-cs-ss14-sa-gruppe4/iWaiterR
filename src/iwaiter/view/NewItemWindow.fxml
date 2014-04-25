@@ -6,6 +6,13 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane id="AnchorPane" prefHeight="400.0" prefWidth="600.0" xmlns:fx="http://javafx.com/fxml" fx:controller="iwaiter.controller.NewItemWindowController">
-    
+<AnchorPane id="AnchorPane" fx:id="content" prefHeight="400.0" prefWidth="333.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="iwaiter.controller.NewItemWindowController">
+  <children>
+    <TableView fx:id="tblItem" onMouseClicked="#tblItem_click" prefHeight="372.0" prefWidth="297.0000999999975" AnchorPane.bottomAnchor="14.0" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="14.0" AnchorPane.topAnchor="14.0">
+      <columns>
+        <TableColumn maxWidth="25000.0" minWidth="250.0" prefWidth="250.0" text="Bestelleinheit" fx:id="colItemName" />
+        <TableColumn maxWidth="5000.0" minWidth="50.0" prefWidth="50.0" text="Preis" fx:id="colItemPrice" />
+      </columns>
+    </TableView>
+  </children>
 </AnchorPane>

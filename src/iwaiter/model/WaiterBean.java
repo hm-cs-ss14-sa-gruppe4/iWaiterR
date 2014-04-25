@@ -51,7 +51,7 @@ public class WaiterBean implements Serializable {
      * 
      * @return orders
      */
-    public final ArrayList<OrderBean> getOrders() {
+    public ArrayList<OrderBean> getOrders() {
         return this.orders;
     }
     

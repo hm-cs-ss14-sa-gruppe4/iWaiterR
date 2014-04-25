@@ -10,18 +10,19 @@ import iwaiter.model.ItemBean;
 import iwaiter.model.OrderBean;
 import iwaiter.model.TableBean;
 import iwaiter.model.WaiterBean;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
+import java.io.IOException;
 import java.net.URL;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
 import java.util.ResourceBundle;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.Event;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
@@ -32,6 +33,10 @@ import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.Pane;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import javafx.util.Callback;
 
 /**
@@ -40,18 +45,21 @@ import javafx.util.Callback;
  * @author Roman Baschmakov
  * @version 1.0
  */
-public class MainWindowController implements Initializable {
+public class MainWindowController extends IWaiterController implements Initializable {
     
     /**
      * Model
      */
-    ArrayList<WaiterBean> waiters;
-    ArrayList<ItemBean> availableItems;
-    ArrayList<TableBean> tables;
+    ObservableList<WaiterBean> waiters;
+    ObservableList<ItemBean> availableItems;
+    ObservableList<TableBean> tables;
     
     /**
      * View
      */
+    
+    @FXML
+    private AnchorPane content;
     
     @FXML
     private Button cmdImport;
@@ -173,8 +181,8 @@ public class MainWindowController implements Initializable {
         });
         
         // default view settings
-        tblOrder.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-        tblOrderItem.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        //tblOrder.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        //tblOrderItem.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         lstWaiter_unload();
     }
     
@@ -187,9 +195,9 @@ public class MainWindowController implements Initializable {
     private void cmdImport_click(Event t) {
         
         // (re-)initialize models
-        waiters = new ArrayList<>();
-        availableItems = new ArrayList<>();
-        tables = new ArrayList<>();
+        waiters = FXCollections.observableArrayList();
+        availableItems = FXCollections.observableArrayList();
+        tables = FXCollections.observableArrayList();
         
         // randomly generated example data
         for (int i = 1; i <= (int)(Math.random()*8)+5; i++)
@@ -263,6 +271,13 @@ public class MainWindowController implements Initializable {
      */
     @FXML
     private void tblOrder_select(Event t) {
+        loadOrder();
+    }
+    
+    /**
+     * Loads properties and dependencies of the currenty selected order for fxml fields.
+     */
+    public void loadOrder() {
         if (tblOrder.getSelectionModel().getSelectedItem() == null)
             return;
         curOrder = (OrderBean) tblOrder.getSelectionModel().getSelectedItem();
@@ -282,7 +297,6 @@ public class MainWindowController implements Initializable {
         
         txtOrderItemName_unload();
     }
-    
     /**
      * Resets references connected to the order list.
      */
@@ -305,8 +319,10 @@ public class MainWindowController implements Initializable {
     private void cmdNewOrder_Click(Event t) {
         if (curWaiter == null)
             return;
-        curWaiter.addOrder(new OrderBean(curWaiter));
-        refreshColumn(colOrderNumber);
+        OrderBean order = new OrderBean(curWaiter);
+        tblOrder.getItems().add(order);
+        tblOrder.getSelectionModel().select(order);
+        loadOrder();
     }
     
     /**
@@ -319,8 +335,6 @@ public class MainWindowController implements Initializable {
         if (tblOrder.getSelectionModel().getSelectedItem() == null)
             return;
         tblOrder.getItems().remove(tblOrder.getSelectionModel().getSelectedIndex());
-        // question: why does the Bean delete its item here as well?
-        tblOrderItem.setItems(null);
         if (tblOrder.getSelectionModel().getSelectedItem() == null)
             tblOrderItem_unload();
     }
@@ -373,11 +387,37 @@ public class MainWindowController implements Initializable {
      * @param t 
      */
     @FXML
-    private void cmdNewOrderItem_Click(Event t) {
+    private void cmdNewOrderItem_Click(Event t) throws IOException {
         if (curOrder == null)
             return;
-        curOrder.addOrderItem(new ItemBean());
-        refreshColumn(colItemName);
+        
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/iwaiter/view/NewItemWindow.fxml"));
+        Pane pane = (Pane) loader.load();
+        NewItemWindowController controller = loader.getController();
+        controller.initData(availableItems);
+        controller.setCorrespondent(this);
+        //controller.setParentStage(this.getParentStage());
+        //controller.setPreviousScene(this.getParentStage().getScene());
+        
+        Stage stage = new Stage();
+        stage.setTitle("Bestelleinheit hinzufügen");
+        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.setScene(new Scene(pane));
+        stage.show();
+        
+        //tblOrderItem.getItems().add(new ItemBean());
+    }
+    
+    /**
+     * Adds a new order item to the order item list.
+     * @param item 
+     */
+    public void addOrderItem(ItemBean item) {
+        if (curOrder == null)
+            return;
+        tblOrderItem.getItems().add(new ItemBean(item));
+        tblOrderItem.getSelectionModel().select(item);
+        loadOrderItem();
     }
     
     /**
@@ -390,8 +430,6 @@ public class MainWindowController implements Initializable {
         if (tblOrderItem.getSelectionModel().getSelectedItem() == null)
             return;
         tblOrderItem.getItems().remove(tblOrderItem.getSelectionModel().getSelectedIndex());
-        // question: why does the Bean delete its item here as well?
-        refreshColumn(colOrderSum);
         if (tblOrderItem.getSelectionModel().getSelectedItem() == null)
             txtOrderItemName_unload();
     }
@@ -402,6 +440,13 @@ public class MainWindowController implements Initializable {
      */
     @FXML
     private void tblOrderItem_select(Event t) {
+        loadOrderItem();
+    }
+    
+    /**
+     * Loads properties of the currently selected order item for fxml fields.
+     */
+    public void loadOrderItem() {
         if (curOrder == null ||
                 tblOrderItem.getSelectionModel().getSelectedItem() == null)
             return;

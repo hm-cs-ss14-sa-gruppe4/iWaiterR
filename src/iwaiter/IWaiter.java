@@ -2,8 +2,8 @@ package iwaiter;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 
 /**
@@ -14,14 +14,14 @@ import javafx.stage.Stage;
 public class IWaiter extends Application {
     
     @Override
-    public void start(Stage stage) throws Exception {
-        
-        // view & controller
-        Parent root = FXMLLoader.load(getClass().getResource("view/MainWindow.fxml"));
-        
-        stage.setTitle("iWaiter");
-        stage.setScene(new Scene(root));
-        stage.show();
+    public void start(Stage primaryStage) throws Exception {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("view/MainWindow.fxml"));
+        Pane pane = (Pane) loader.load(); //init is executed here
+        //IWaiterController controller = loader.getController();
+        //controller.setParentStage(primaryStage);
+        primaryStage.setTitle("iWaiter");
+        primaryStage.setScene(new Scene(pane));
+        primaryStage.show();
     }
     
     /**

@@ -101,7 +101,7 @@ public class ItemBean implements Serializable {
             return false;
         final ItemBean other = (ItemBean) obj;
         return this.name.equals(other.getName())
-                && this.price != other.price;
+                && this.price == other.price;
     }
     
     @Override
