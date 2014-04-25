@@ -12,7 +12,8 @@ import java.io.Serializable;
 
 /**
  *
- * @author mtSA01
+ * @author Roman Baschmakov, Viktor Magdych
+ * @version 1.0
  */
 public class TableBean implements Serializable {
     

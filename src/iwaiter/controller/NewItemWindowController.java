@@ -27,7 +27,7 @@ import javafx.util.Callback;
 /**
  * FXML Controller class
  *
- * @author Roman Baschmakov
+ * @author Roman Baschmakov, Viktor Magdych
  * @version 1.0
  */
 public class NewItemWindowController extends IWaiterController implements Initializable {

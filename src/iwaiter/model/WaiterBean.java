@@ -7,7 +7,7 @@ import java.util.Objects;
 
 /**
  *
- * @author Roman Baschmakov
+ * @author Roman Baschmakov, Viktor Magdych
  * @version 1.0
  */
 public class WaiterBean implements Serializable {

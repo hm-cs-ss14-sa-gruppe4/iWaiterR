@@ -8,7 +8,7 @@ import javafx.stage.Stage;
 
 /**
  *
- * @author Roman Baschmakov
+ * @author Roman Baschmakov, Viktor Magdych
  * @version 1.0
  */
 public class IWaiter extends Application {
