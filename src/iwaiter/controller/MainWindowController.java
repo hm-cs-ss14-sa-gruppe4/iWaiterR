@@ -220,9 +220,9 @@ public class MainWindowController extends IWaiterController implements Initializ
                         (int)(Math.random()*10000), // random order number
                         tables.get((int)(Math.random()*tables.size())), // random table
                         Math.random() < 0.5); // random finalized status
-                waiter.addOrder(order);
+                waiter.getOrders().add(order);
                 for (int j = 0; j < Math.pow(Math.random() + 1, 4); j++) // random amount of random order items
-                    order.addOrderItem(new ItemBean(availableItems.get((int)(Math.random()*availableItems.size()))));
+                    order.getOrderItems().add(new ItemBean(availableItems.get((int)(Math.random()*availableItems.size()))));
             }
         }
         
@@ -335,7 +335,8 @@ public class MainWindowController extends IWaiterController implements Initializ
         if (tblOrder.getSelectionModel().getSelectedItem() == null)
             return;
         tblOrder.getItems().remove(tblOrder.getSelectionModel().getSelectedIndex());
-        if (tblOrder.getSelectionModel().getSelectedItem() == null)
+        tblOrder.getSelectionModel().clearSelection();
+        //if (tblOrder.getSelectionModel().getSelectedItem() == null)
             tblOrderItem_unload();
     }
     
@@ -418,6 +419,7 @@ public class MainWindowController extends IWaiterController implements Initializ
         tblOrderItem.getItems().add(new ItemBean(item));
         tblOrderItem.getSelectionModel().select(item);
         loadOrderItem();
+        refreshColumn(colOrderSum);
     }
     
     /**
@@ -430,7 +432,8 @@ public class MainWindowController extends IWaiterController implements Initializ
         if (tblOrderItem.getSelectionModel().getSelectedItem() == null)
             return;
         tblOrderItem.getItems().remove(tblOrderItem.getSelectionModel().getSelectedIndex());
-        if (tblOrderItem.getSelectionModel().getSelectedItem() == null)
+        tblOrderItem.getSelectionModel().clearSelection();
+        //if (tblOrderItem.getSelectionModel().getSelectedItem() == null)
             txtOrderItemName_unload();
     }
     

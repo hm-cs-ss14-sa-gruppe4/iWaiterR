@@ -57,31 +57,10 @@ public class WaiterBean implements Serializable {
     
     /**
      * 
-     * @param order 
+     * @param orders 
      */
-    public void addOrder(OrderBean order) {
-        this.orders.add(order);
-    }
-    
-    /**
-     * 
-     * @param order
-     * @throws iwaiter.model.WaiterBean.RemoveOrderException 
-     */
-    public void removeOrder(OrderBean order) throws RemoveOrderException {
-        if (!orders.remove(order))
-            throw new RemoveOrderException();
-    }
-    
-    /**
-     * 
-     * @param oldOrder
-     * @param newOrder 
-     */
-    public void setOrder(OrderBean oldOrder, OrderBean newOrder) {
-        for(OrderBean i : this.orders)
-            if (i.equals(oldOrder))
-                i = newOrder;
+    public void setOrders(ArrayList<OrderBean> orders) {
+        this.orders = orders;
     }
     
     @Override

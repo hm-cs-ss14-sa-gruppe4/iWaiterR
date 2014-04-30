@@ -166,37 +166,10 @@ public class OrderBean implements Serializable {
     
     /**
      * 
-     * @param item 
+     * @param items
      */
-    public void addOrderItem(ItemBean item) {
-        this.orderItems.add(item);
-        /** @todo: propertySupport.firePropertyChange */
-        this.calculated = false;
-    }
-    
-    /**
-     * 
-     * @param item
-     * @throws iwaiter.model.OrderBean.RemoveOrderItemException 
-     */
-    public void removeOrderItem(ItemBean item) throws RemoveOrderItemException {
-        if (!orderItems.remove(item))
-            throw new RemoveOrderItemException();
-        /** @todo: propertySupport.firePropertyChange */
-        this.calculated = false;
-    }
-    
-    /**
-     * 
-     * @param oldItem
-     * @param newItem 
-     */
-    public void setOrderItem(ItemBean oldItem, ItemBean newItem) {
-        for(ItemBean i : this.orderItems)
-            if (i.equals(oldItem))
-                i = newItem;
-        /** @todo: propertySupport.firePropertyChange */
-        this.calculated = false;
+    public void setOrderItems(ArrayList<ItemBean> items) {
+        this.orderItems = items;
     }
     
     /**
