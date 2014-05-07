@@ -282,18 +282,19 @@ public class MainWindowController extends IWaiterController implements Initializ
             return;
         curOrder = (OrderBean) tblOrder.getSelectionModel().getSelectedItem();
         
+        boolean fin = curOrder.isFinalized();
         cmdDelOrder.setDisable(false);
-        cmdFinalizeOrder.setDisable(curOrder.isFinalized());
+        cmdFinalizeOrder.setDisable(fin);
         txtOrderNumber.setText(String.valueOf(curOrder.getOrderNumber()));
-        txtOrderNumber.setDisable(false);
+        txtOrderNumber.setDisable(fin);
         mutexNoEvent = true;
         lstTable.setValue(curOrder.getTable());
         mutexNoEvent = false;
-        lstTable.setDisable(false);
+        lstTable.setDisable(fin);
         tblOrderItem.setItems(FXCollections.observableList(curOrder.getOrderItems()));
         //lstTable.getSelectionModel().clearSelection();
         tblOrderItem.setDisable(false);
-        cmdNewOrderItem.setDisable(false);
+        cmdNewOrderItem.setDisable(fin);
         
         txtOrderItemName_unload();
     }
@@ -379,7 +380,8 @@ public class MainWindowController extends IWaiterController implements Initializ
             return;
         if (!curOrder.isFinalized())
             curOrder.setFinalize();
-        cmdFinalizeOrder.setDisable(true);
+        loadOrder();
+        //cmdFinalizeOrder.setDisable(true);
         refreshColumn(colOrderFinalized);
     }
     
@@ -455,11 +457,12 @@ public class MainWindowController extends IWaiterController implements Initializ
             return;
         curItem = (ItemBean) tblOrderItem.getSelectionModel().getSelectedItem();
         
-        cmdDelOrderItem.setDisable(false);
+        boolean fin = curOrder.isFinalized();
+        cmdDelOrderItem.setDisable(fin);
         txtOrderItemName.setText(curItem.getName());
-        txtOrderItemName.setDisable(false);
+        txtOrderItemName.setDisable(fin);
         txtOrderItemPrice.setText(String.valueOf(curItem.getPrice()));
-        txtOrderItemPrice.setDisable(false);
+        txtOrderItemPrice.setDisable(fin);
     }
     
     /**
