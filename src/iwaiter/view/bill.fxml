@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<VBox prefHeight="290.0" prefWidth="274.0" spacing="5.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="iwaiter.controller.BillController">
+<children>
+<HBox layoutX="43.3271484375" layoutY="22.0" spacing="10.0">
+<children><Text layoutX="43.3271484375" layoutY="35.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Bill from Waiter:" /><Label fx:id="waiterName" layoutX="160.0" layoutY="30.0" />
+</children>
+</HBox><TableView fx:id="tableBill" layoutX="43.3271484375" layoutY="50.0" prefHeight="200.0" prefWidth="200.0">
+  <columns>
+    <TableColumn fx:id="itemBill" minWidth="90.0" prefWidth="170.0" text="Drinks" />
+    <TableColumn fx:id="priseBill" minWidth="102.0" prefWidth="102.0" text="PRICE" />
+  </columns>
+</TableView>
+<Group>
+<children><Label fx:id="Total" layoutX="215.0" layoutY="254.0" /><Text layoutX="43.0" layoutY="268.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Total to pay:" wrappingWidth="95.8251953125" />
+</children>
+</Group><Button fx:id="printButton" mnemonicParsing="false" onAction="#printing" text="Print" />
+</children>
+</VBox>

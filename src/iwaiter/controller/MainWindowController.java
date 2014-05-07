@@ -18,6 +18,7 @@ import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -200,7 +201,7 @@ public class MainWindowController extends IWaiterController implements Initializ
         tables = FXCollections.observableArrayList();
         
         // randomly generated example data
-        for (int i = 1; i <= (int)(Math.random()*8)+5; i++)
+        for (int i = 1; i <= (int)(Math.random()*8)+7; i++)
             tables.add(new TableBean(i));
         
         System.out.println("tables: " + tables);
@@ -290,6 +291,7 @@ public class MainWindowController extends IWaiterController implements Initializ
         lstTable.setValue(curOrder.getTable());
         mutexNoEvent = false;
         lstTable.setDisable(false);
+        
         tblOrderItem.setItems(FXCollections.observableList(curOrder.getOrderItems()));
         //lstTable.getSelectionModel().clearSelection();
         tblOrderItem.setDisable(false);
@@ -380,6 +382,29 @@ public class MainWindowController extends IWaiterController implements Initializ
             curOrder.setFinalize();
         cmdFinalizeOrder.setDisable(true);
         refreshColumn(colOrderFinalized);
+    }
+    
+    /**
+     * Event for printing bill.
+     * @param t 
+     */
+   @FXML
+    private void printing_Order(ActionEvent event) throws IOException {
+         FXMLLoader loader = new FXMLLoader(getClass().getResource("/iwaiter/view/bill.fxml"));
+        Pane pane = (Pane) loader.load();
+        BillController controller = loader.getController();
+        
+        controller.initData(curOrder,pane);
+       // controller.setCorrespondent(this);
+        //controller.setParentStage(this.getParentStage());
+        //controller.setPreviousScene(this.getParentStage().getScene());
+        
+        Stage stage = new Stage();
+        stage.setTitle("BILL");
+        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.setScene(new Scene(pane));
+        stage.show();
+        
     }
     
     /**
@@ -522,5 +547,9 @@ public class MainWindowController extends IWaiterController implements Initializ
         tc.setVisible(false); // resolving table view column refresh issue
         tc.setVisible(true);
     }
+
+    
+
+   
     
 }
