@@ -7,13 +7,22 @@
 package iwaiter.controller;
 
 import iwaiter.model.ItemBean;
+import iwaiter.entity.AvailableItemEntity;
+import iwaiter.entity.OrderEntity;
+import iwaiter.entity.OrderItemEntity;
 import iwaiter.model.OrderBean;
 import iwaiter.model.TableBean;
+import iwaiter.entity.TableEntity;
 import iwaiter.model.WaiterBean;
+import iwaiter.entity.WaiterEntity;
+import java.awt.print.PrinterException;
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.text.DecimalFormat;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -35,15 +44,26 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
+import javafx.stage.FileChooser;
+import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Callback;
+import javax.swing.JTextPane;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 /**
  * FXML Controller class
  *
  * @author Roman Baschmakov, Viktor Magdych
- * @version 1.0
+ * @version 1.1
  */
 public class MainWindowController extends IWaiterController implements Initializable {
     
@@ -85,11 +105,11 @@ public class MainWindowController extends IWaiterController implements Initializ
     private Button cmdNewOrder;
     @FXML
     private Button cmdDelOrder;
-    @FXML
-    private Button cmdPrintOrder;
     
     @FXML
     private Button cmdFinalizeOrder;
+    @FXML
+    private Button cmdPrintOrder;
     
     @FXML
     private TextField txtOrderNumber;
@@ -109,6 +129,8 @@ public class MainWindowController extends IWaiterController implements Initializ
     private Button cmdDelOrderItem;
     
     @FXML
+    private Button cmdSaveChanges;
+    @FXML
     private TextField txtOrderItemName;
     @FXML
     private TextField txtOrderItemPrice;
@@ -116,11 +138,20 @@ public class MainWindowController extends IWaiterController implements Initializ
     /**
      * Controller fields
      */
-    WaiterBean curWaiter; // pointer for currently selected waiter
-    OrderBean curOrder; // -||- order
-    ItemBean curItem; // -||- order item
+    WaiterBean curWaiterBean; // pointer for currently selected waiter
+    OrderBean curOrderBean; // -||- order
+    ItemBean curItemBean; // -||- order item
     
     private boolean mutexNoEvent = false; // flag for fxml objects to not interact
+    
+    /**
+     *Persistence
+     */
+    PersistenceManager pm = new PersistenceManager();
+    
+    WaiterEntity curWaiterEntity; // pointer for currently selected waiter
+    OrderEntity curOrderEntity; // -||- order
+    OrderItemEntity curItemEntity; // -||- order item
     
     /**
      * Initializes the controller class.
@@ -150,7 +181,7 @@ public class MainWindowController extends IWaiterController implements Initializ
             
         });
         
-        // order list
+        // order lists
         colOrderNumber.setCellValueFactory(new PropertyValueFactory<OrderBean, String>(OrderBean.PROP_ORDER_NUMBER));
         colOrderTableNumber.setCellValueFactory(new PropertyValueFactory<OrderBean, String>(OrderBean.PROP_TABLE));
         colOrderSum.setCellValueFactory(new Callback<CellDataFeatures<OrderBean,String>, ObservableValue<String>>() {
@@ -169,7 +200,7 @@ public class MainWindowController extends IWaiterController implements Initializ
             }
         });
         
-        // order item list
+        // order item lists
         colItemName.setCellValueFactory(new PropertyValueFactory<ItemBean, String>(ItemBean.PROP_NAME));
         colItemPrice.setCellValueFactory(new Callback<CellDataFeatures<ItemBean,String>, ObservableValue<String>>() {
             @Override
@@ -181,9 +212,35 @@ public class MainWindowController extends IWaiterController implements Initializ
         });
         
         // default view settings
-        //tblOrder.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-        //tblOrderItem.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         lstWaiter_unload();
+        loadMainDatabaseTables();
+    }
+    
+    /**
+     * Loads the waiters and the tables from the database tables.
+     */
+    private void loadMainDatabaseTables() {
+        // (re-)initialize models
+        waiters = FXCollections.observableArrayList();
+        availableItems = FXCollections.observableArrayList();
+        tables = FXCollections.observableArrayList();
+        
+        // load entities and their respective beans
+        // -- waiters
+        for(Object e : pm.allEntries(WaiterEntity.class))
+            waiters.add(new WaiterBean(((WaiterEntity)e).getName()));
+        // -- available items
+        for(Object e : pm.allEntries(AvailableItemEntity.class)) {
+            AvailableItemEntity item = (AvailableItemEntity) e;
+            availableItems.add(new ItemBean(item.getId(), item.getName(), item.getPrice()));
+        }
+        // -- tables
+        for(Object e : pm.allEntries(TableEntity.class))
+            tables.add(new TableBean(((TableEntity)e).getTableNumber()));
+        
+        // apply waiters and tables to view
+        lstWaiter.setItems(FXCollections.observableList(waiters));
+        lstTable.setItems(FXCollections.observableList(tables));
     }
     
     /**
@@ -193,47 +250,71 @@ public class MainWindowController extends IWaiterController implements Initializ
      */
     @FXML
     private void cmdImport_click(Event t) {
-        
-        // (re-)initialize models
-        waiters = FXCollections.observableArrayList();
-        availableItems = FXCollections.observableArrayList();
-        tables = FXCollections.observableArrayList();
-        
-        // randomly generated example data
-        for (int i = 1; i <= (int)(Math.random()*8)+5; i++)
-            tables.add(new TableBean(i));
-        
-        System.out.println("tables: " + tables);
-        
-        availableItems.add(new ItemBean("Pina Colada",500));
-        availableItems.add(new ItemBean("Bloody Mary",550));
-        availableItems.add(new ItemBean("Swimming Pool",600));
-        availableItems.add(new ItemBean("Zombie",650));
-        
-        System.out.println("availableItems: " + availableItems);
-        
-        for (String s : "Thomas|Johnson|Peter|Alfred".split("\\|")) {
-            WaiterBean waiter = new WaiterBean(s);
-            waiters.add(waiter);
-            for (int i = 0; i < Math.pow(Math.random() + 1, 4); i++) { // random amount of orders
-                OrderBean order = new OrderBean(waiter, 
-                        (int)(Math.random()*10000), // random order number
-                        tables.get((int)(Math.random()*tables.size())), // random table
-                        Math.random() < 0.5); // random finalized status
-                waiter.getOrders().add(order);
-                for (int j = 0; j < Math.pow(Math.random() + 1, 4); j++) // random amount of random order items
-                    order.getOrderItems().add(new ItemBean(availableItems.get((int)(Math.random()*availableItems.size()))));
+        try {
+            // get file
+            FileChooser fileChooser = new FileChooser();
+            ExtensionFilter extFilter = new FileChooser.ExtensionFilter("xml-Dateien (*.xml)", "*.xml");
+            fileChooser.getExtensionFilters().add(extFilter);
+            File file = fileChooser.showOpenDialog(null);
+            
+            // process file
+            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+            Document doc = dBuilder.parse(file);
+            doc.getDocumentElement().normalize();
+            
+            NodeList nList;
+            // import waiters
+            nList = doc.getElementsByTagName("waiters").item(0).getChildNodes();
+            for (int i = 0; i < nList.getLength(); i++) {
+                Node nNode = nList.item(i);
+                if (nNode.getNodeType() == Node.ELEMENT_NODE) {
+                    String name = ((Element) nNode).getAttribute("name");
+                    if (pm.findWaiter(name) == null) {
+                        WaiterEntity waiter = new WaiterEntity();
+                        waiter.setName(name);
+                        pm.create(waiter);
+                    }
+                }
             }
+            // import tables
+            nList = doc.getElementsByTagName("tables").item(0).getChildNodes();
+            for (int i = 0; i < nList.getLength(); i++) {
+                Node nNode = nList.item(i);
+                if (nNode.getNodeType() == Node.ELEMENT_NODE) {
+                    int tablenumber = Integer.parseInt(((Element) nNode).getAttribute("tablenumber"));
+                    if (pm.findTable(tablenumber) == null) {
+                        TableEntity table = new TableEntity();
+                        table.setTableNumber(tablenumber);
+                        pm.create(table);
+                    }
+                }
+            }
+            // import order items
+            nList = doc.getElementsByTagName("items").item(0).getChildNodes();
+            for (int i = 0; i < nList.getLength(); i++) {
+                Node nNode = nList.item(i);
+                if (nNode.getNodeType() == Node.ELEMENT_NODE) {
+                    String name = ((Element) nNode).getAttribute("name");
+                    int price = Integer.parseInt(((Element) nNode).getAttribute("price"));
+                    if (pm.findAvailableItem(name) == null) {
+                        AvailableItemEntity item = new AvailableItemEntity();
+                        item.setName(name);
+                        item.setPrice(price);
+                        pm.create(item);
+                    }
+                }
+            }
+            
+            // (re-)set sub-views for quantitative data
+            tblOrder_unload();
+            
+            // load qualitative data in sub-views
+            loadMainDatabaseTables();
+            
+        } catch (ParserConfigurationException | SAXException | IOException ex) {
+            Logger.getLogger(MainWindowController.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
-        System.out.println("waiters: " + waiters);
-        
-        // (re-)set sub-views for quantitative data
-        tblOrder_unload();
-        
-        // load qualitative data in sub-views
-        lstWaiter.setItems(FXCollections.observableList(waiters));
-        lstTable.setItems(FXCollections.observableList(tables));
     }
     
     /**
@@ -242,12 +323,32 @@ public class MainWindowController extends IWaiterController implements Initializ
      */
     @FXML
     private void lstWaiter_select(Event t) {
+        loadWaiter();
+    }
+    
+    /**
+     * Loads properties and dependencies of the currenty selected waiter for fxml fields.
+     */
+    public void loadWaiter() {
         if (lstWaiter.getSelectionModel().getSelectedItem() == null)
             return;
-        curWaiter = (WaiterBean) lstWaiter.getSelectionModel().getSelectedItem();
+        curWaiterBean = (WaiterBean) lstWaiter.getSelectionModel().getSelectedItem();
+        curWaiterBean.getOrders().clear();
         
-        lblWaiter.setText(curWaiter.getName());
-        tblOrder.setItems(FXCollections.observableList(curWaiter.getOrders()));
+        curWaiterEntity = pm.findWaiter(curWaiterBean.getName());
+        for(OrderEntity e : curWaiterEntity.getOrders()) {
+            TableBean table = null;
+            for (TableBean b : tables)
+                if (e.getTable().getTableNumber() == b.getTableNumber()) {
+                    table = b;
+                    break;
+                }
+            OrderBean order = new OrderBean(curWaiterBean, e.getOrderNumber(), table, e.getSumOfMoney(), e.isFinalized());
+            curWaiterBean.getOrders().add(order);
+        }
+        
+        lblWaiter.setText(curWaiterBean.getName());
+        tblOrder.setItems(FXCollections.observableList(curWaiterBean.getOrders()));
         tblOrder.setDisable(false);
         cmdNewOrder.setDisable(false);
         
@@ -258,7 +359,7 @@ public class MainWindowController extends IWaiterController implements Initializ
      * Reset references connected to the waiter list.
      */
     private void lstWaiter_unload() {
-        curWaiter = null;
+        curWaiterBean = null;
         
         lstWaiter.setItems(null);
         
@@ -280,21 +381,28 @@ public class MainWindowController extends IWaiterController implements Initializ
     public void loadOrder() {
         if (tblOrder.getSelectionModel().getSelectedItem() == null)
             return;
-        curOrder = (OrderBean) tblOrder.getSelectionModel().getSelectedItem();
+        curOrderBean = (OrderBean) tblOrder.getSelectionModel().getSelectedItem();
+        curOrderBean.getOrderItems().clear();
         
-        boolean fin = curOrder.isFinalized();
+        curOrderEntity = pm.findOrder(curOrderBean.getOrderNumber());
+        for(OrderItemEntity e : curOrderEntity.getOrderItems())
+            curOrderBean.getOrderItems().add(new ItemBean(e.getId(), e.getName(), e.getPrice()));
+        
+        boolean fin = curOrderBean.isFinalized();
         cmdDelOrder.setDisable(false);
         cmdFinalizeOrder.setDisable(fin);
-        txtOrderNumber.setText(String.valueOf(curOrder.getOrderNumber()));
-        txtOrderNumber.setDisable(fin);
+        cmdPrintOrder.setDisable(!fin);
+        txtOrderNumber.setText(String.valueOf(curOrderBean.getOrderNumber()));
+        //txtOrderNumber.setDisable(fin);
         mutexNoEvent = true;
-        lstTable.setValue(curOrder.getTable());
+        lstTable.setValue(curOrderBean.getTable());
         mutexNoEvent = false;
         lstTable.setDisable(fin);
-        tblOrderItem.setItems(FXCollections.observableList(curOrder.getOrderItems()));
+        tblOrderItem.setItems(FXCollections.observableList(curOrderBean.getOrderItems()));
         //lstTable.getSelectionModel().clearSelection();
         tblOrderItem.setDisable(false);
         cmdNewOrderItem.setDisable(fin);
+        cmdSaveChanges.setDisable(true);
         
         txtOrderItemName_unload();
     }
@@ -302,7 +410,7 @@ public class MainWindowController extends IWaiterController implements Initializ
      * Resets references connected to the order list.
      */
     private void tblOrder_unload() {
-        curOrder = null;
+        curOrderBean = null;
         
         lblWaiter.setText("(kein Kellner gewählt)");
         tblOrder.setItems(null);
@@ -317,12 +425,44 @@ public class MainWindowController extends IWaiterController implements Initializ
      * @param t 
      */
     @FXML
-    private void cmdNewOrder_Click(Event t) {
-        if (curWaiter == null)
+    private void cmdNewOrder_Click(Event t) throws IOException {
+        if (curWaiterBean == null)
             return;
-        OrderBean order = new OrderBean(curWaiter);
-        tblOrder.getItems().add(order);
-        tblOrder.getSelectionModel().select(order);
+        
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/iwaiter/view/NewOrderWindow.fxml"));
+        Pane pane = (Pane) loader.load();
+        NewOrderWindowController controller = loader.getController();
+        controller.initData(tables);
+        controller.setCorrespondent(this);
+        
+        Stage stage = new Stage();
+        stage.setTitle("Neue Bestellung erstellen");
+        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.setScene(new Scene(pane));
+        stage.show();
+    }
+    
+    /**
+     * Adds a new order to the order list. 
+     * @param table
+     */
+    public void addOrder(TableBean table) {
+        if (curWaiterBean == null)
+            return;
+        
+        OrderBean newOrder = new OrderBean(curWaiterBean, 0, table);
+        tblOrder.getItems().add(newOrder);
+        
+        OrderEntity e = new OrderEntity();
+        pm.create(e);
+        e.setTable(pm.findTable(table.getTableNumber()));
+        e.setWaiter(curWaiterEntity);
+        pm.update(e);
+        curWaiterEntity.getOrders().add(e);
+        pm.update(curWaiterEntity);
+        
+        newOrder.setOrderNumber(e.getOrderNumber()); // get database generated value
+        tblOrder.getSelectionModel().select(newOrder);
         loadOrder();
     }
     
@@ -335,7 +475,12 @@ public class MainWindowController extends IWaiterController implements Initializ
     private void cmdDelOrder_click(Event t) throws WaiterBean.RemoveOrderException {
         if (tblOrder.getSelectionModel().getSelectedItem() == null)
             return;
+        
         tblOrder.getItems().remove(tblOrder.getSelectionModel().getSelectedIndex());
+        
+        curWaiterEntity.getOrders().remove(curOrderEntity);
+        pm.update(curWaiterEntity);
+        
         tblOrder.getSelectionModel().clearSelection();
         //if (tblOrder.getSelectionModel().getSelectedItem() == null)
             tblOrderItem_unload();
@@ -347,10 +492,10 @@ public class MainWindowController extends IWaiterController implements Initializ
      */
     @FXML
     private void txtOrderNumber_change(Event t) {
-        if (curOrder == null || txtOrderNumber.getText().isEmpty())
+        if (curOrderBean == null || txtOrderNumber.getText().isEmpty())
             return;
         try {
-            curOrder.setOrderNumber(Integer.parseInt(txtOrderNumber.getText()));
+            curOrderBean.setOrderNumber(Integer.parseInt(txtOrderNumber.getText()));
         } catch (NumberFormatException e) {
             
         }
@@ -363,11 +508,16 @@ public class MainWindowController extends IWaiterController implements Initializ
      */
     @FXML
     private void lstTable_change(Event t) {
-        if (mutexNoEvent || curOrder == null || 
+        if (mutexNoEvent || curOrderBean == null || 
                 lstTable.getSelectionModel().getSelectedItem() == null)
             return;
-        curOrder.setTable((TableBean) lstTable.getSelectionModel().getSelectedItem());
+        
+        TableBean table = (TableBean) lstTable.getSelectionModel().getSelectedItem();
+        curOrderBean.setTable(table);
         refreshColumn(colOrderTableNumber);
+        
+        curOrderEntity.setTable(pm.findTable(table.getTableNumber()));
+        pm.update(curOrderEntity);
     }
     
     /**
@@ -376,13 +526,43 @@ public class MainWindowController extends IWaiterController implements Initializ
      */
     @FXML
     private void cmdFinalizeOrder_click(Event t) {
-        if (curOrder == null)
+        if (curOrderBean == null)
             return;
-        if (!curOrder.isFinalized())
-            curOrder.setFinalize();
+        
+        if (!curOrderBean.isFinalized()) {
+            curOrderEntity.setFinalized();
+            pm.update(curOrderEntity);
+            
+            curOrderBean.setFinalized();
+        }
         loadOrder();
         //cmdFinalizeOrder.setDisable(true);
         refreshColumn(colOrderFinalized);
+    }
+    
+    /**
+     * Event for printing the currently selected order.
+     * @param t 
+     */
+    @FXML
+    private void cmdPrintOrder_click(Event t) throws PrinterException {
+        
+        // build text
+        String text = "iWaiter Bestellung" + 
+                "\n\nKeller: " + curWaiterBean.getName() + 
+                "\nBestellnummer: " + curOrderBean.getOrderNumber() + 
+                "\nTisch: " + curOrderBean.getTable().getTableNumber() + 
+                "\n";
+        DecimalFormat df = new DecimalFormat("###,##0.00 €");
+        for (ItemBean item : curOrderBean.getOrderItems())
+            text += "\n" + item.getName() + " " + df.format((double)item.getPrice()/100);
+        text += "\n\nSumme " + df.format((double)curOrderBean.getSumOfMoney()/100);
+        
+        // print text
+        JTextPane textPane = new JTextPane();
+        textPane.setText(text);
+        textPane.print();
+        
     }
     
     /**
@@ -391,7 +571,7 @@ public class MainWindowController extends IWaiterController implements Initializ
      */
     @FXML
     private void cmdNewOrderItem_Click(Event t) throws IOException {
-        if (curOrder == null)
+        if (curOrderBean == null)
             return;
         
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/iwaiter/view/NewItemWindow.fxml"));
@@ -399,16 +579,12 @@ public class MainWindowController extends IWaiterController implements Initializ
         NewItemWindowController controller = loader.getController();
         controller.initData(availableItems);
         controller.setCorrespondent(this);
-        //controller.setParentStage(this.getParentStage());
-        //controller.setPreviousScene(this.getParentStage().getScene());
         
         Stage stage = new Stage();
         stage.setTitle("Bestelleinheit hinzufügen");
         stage.initModality(Modality.APPLICATION_MODAL);
         stage.setScene(new Scene(pane));
         stage.show();
-        
-        //tblOrderItem.getItems().add(new ItemBean());
     }
     
     /**
@@ -416,10 +592,23 @@ public class MainWindowController extends IWaiterController implements Initializ
      * @param item 
      */
     public void addOrderItem(ItemBean item) {
-        if (curOrder == null)
+        if (curOrderBean == null)
             return;
-        tblOrderItem.getItems().add(new ItemBean(item));
-        tblOrderItem.getSelectionModel().select(item);
+        
+        ItemBean newItem = new ItemBean(item);
+        tblOrderItem.getItems().add(newItem);
+        curOrderBean.calculateSum();
+        
+        OrderItemEntity e = new OrderItemEntity();
+        e.setName(newItem.getName());
+        e.setPrice(newItem.getPrice());
+        pm.create(e);
+        curOrderEntity.getOrderItems().add(e);
+        curOrderEntity.setSumOfMoney(curOrderBean.getSumOfMoney());
+        pm.update(curOrderEntity);
+        
+        newItem.setId(e.getId()); // get database generated value
+        tblOrderItem.getSelectionModel().select(newItem);
         loadOrderItem();
         refreshColumn(colOrderSum);
     }
@@ -433,10 +622,18 @@ public class MainWindowController extends IWaiterController implements Initializ
     private void cmdDelOrderItem_click(Event t) throws OrderBean.RemoveOrderItemException {
         if (tblOrderItem.getSelectionModel().getSelectedItem() == null)
             return;
+        
         tblOrderItem.getItems().remove(tblOrderItem.getSelectionModel().getSelectedIndex());
+        curOrderBean.calculateSum();
+        
+        curOrderEntity.getOrderItems().remove(curItemEntity);
+        curOrderEntity.setSumOfMoney(curOrderBean.getSumOfMoney());
+        pm.update(curOrderEntity);
+        
         tblOrderItem.getSelectionModel().clearSelection();
         //if (tblOrderItem.getSelectionModel().getSelectedItem() == null)
             txtOrderItemName_unload();
+        refreshColumn(colOrderSum);
     }
     
     /**
@@ -452,16 +649,18 @@ public class MainWindowController extends IWaiterController implements Initializ
      * Loads properties of the currently selected order item for fxml fields.
      */
     public void loadOrderItem() {
-        if (curOrder == null ||
+        if (curOrderBean == null ||
                 tblOrderItem.getSelectionModel().getSelectedItem() == null)
             return;
-        curItem = (ItemBean) tblOrderItem.getSelectionModel().getSelectedItem();
+        curItemBean = (ItemBean) tblOrderItem.getSelectionModel().getSelectedItem();
         
-        boolean fin = curOrder.isFinalized();
+        curItemEntity = pm.findOrderItem(curItemBean.getId());
+        
+        boolean fin = curOrderBean.isFinalized();
         cmdDelOrderItem.setDisable(fin);
-        txtOrderItemName.setText(curItem.getName());
+        txtOrderItemName.setText(curItemBean.getName());
         txtOrderItemName.setDisable(fin);
-        txtOrderItemPrice.setText(String.valueOf(curItem.getPrice()));
+        txtOrderItemPrice.setText(String.valueOf(curItemBean.getPrice()));
         txtOrderItemPrice.setDisable(fin);
     }
     
@@ -469,16 +668,18 @@ public class MainWindowController extends IWaiterController implements Initializ
      * Resets references connected to the order list.
      */
     private void tblOrderItem_unload() {
-        curItem = null;
+        curItemBean = null;
         
         cmdDelOrder.setDisable(true);
         cmdFinalizeOrder.setDisable(true);
+        cmdPrintOrder.setDisable(true);
         txtOrderNumber.setDisable(true);
         lstTable.setDisable(true);
         tblOrderItem.setItems(null);
         tblOrderItem.setDisable(true);
         cmdNewOrderItem.setDisable(true);
         
+        cmdSaveChanges.setDisable(true);
         txtOrderItemName_unload();
     }
     
@@ -488,10 +689,11 @@ public class MainWindowController extends IWaiterController implements Initializ
      */
     @FXML
     private void txtOrderItemName_change(Event t) {
-        if (curItem == null || txtOrderItemName.getText().isEmpty())
+        if (curItemBean == null || txtOrderItemName.getText().isEmpty())
             return;
-        curItem.setName(txtOrderItemName.getText());
-        refreshColumn(colItemName);
+        curItemBean.setName(txtOrderItemName.getText());
+        cmdSaveChanges.setDisable(false);
+        //refreshColumn(colItemName);
     }
     
     /**
@@ -509,15 +711,39 @@ public class MainWindowController extends IWaiterController implements Initializ
      */
     @FXML
     private void txtOrderItemPrice_change(Event t) {
-        if (curItem == null || txtOrderItemPrice.getText().isEmpty())
+        if (curItemBean == null || txtOrderItemPrice.getText().isEmpty())
             return;
         try {
-            curItem.setPrice(Integer.parseInt(txtOrderItemPrice.getText()));
+            curItemBean.setPrice(Integer.parseInt(txtOrderItemPrice.getText()));
         } catch (NumberFormatException e) {
             
         }
+        cmdSaveChanges.setDisable(false);
+        //refreshColumn(colItemPrice);
+        //refreshColumn(colOrderSum);
+    }
+    
+    /**
+     * Event for saving the changes made on an order item onto the database.
+     * @param t 
+     */
+    @FXML
+    private void cmdSaveChanges_click(Event t) {
+        // it is assumed here that curItemBean is up-to-date and needs to be persisted into curItemEntity
+        curOrderBean.calculateSum();
+        
+        curItemEntity.setName(curItemBean.getName());
+        curItemEntity.setPrice(curItemBean.getPrice());
+        pm.update(curItemEntity);
+        
+        curOrderEntity = pm.findOrder(curOrderBean.getOrderNumber());
+        curOrderEntity.setSumOfMoney(curOrderBean.getSumOfMoney());
+        pm.update(curOrderEntity);
+        
         refreshColumn(colItemPrice);
         refreshColumn(colOrderSum);
+        
+        cmdSaveChanges.setDisable(true);
     }
     
     /**

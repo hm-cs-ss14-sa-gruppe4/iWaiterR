@@ -8,9 +8,9 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<AnchorPane id="AnchorPane" fx:id="content" prefHeight="458.0" prefWidth="589.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="iwaiter.controller.MainWindowController">
+<AnchorPane id="AnchorPane" fx:id="content" prefHeight="557.0" prefWidth="597.000199999995" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="iwaiter.controller.MainWindowController">
   <children>
-    <SplitPane dividerPositions="0.29642248722316866" focusTraversable="true" prefHeight="404.0" prefWidth="589.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+    <SplitPane dividerPositions="0.2991595633077124" focusTraversable="true" prefHeight="404.0" prefWidth="589.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
       <items>
         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
           <children>
@@ -21,7 +21,7 @@
         </AnchorPane>
         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
           <children>
-            <SplitPane dividerPositions="0.3964757709251101" focusTraversable="true" orientation="VERTICAL" prefHeight="402.00010681152344" prefWidth="345.0000999999975" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <SplitPane dividerPositions="0.4141048824593128" focusTraversable="true" orientation="VERTICAL" prefHeight="402.00010681152344" prefWidth="345.0000999999975" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
               <items>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
                   <children>
@@ -33,12 +33,12 @@
                         <TableColumn maxWidth="10000.0" minWidth="100.0" prefWidth="100.0" text="Abgeschlossen" fx:id="colOrderFinalized" />
                       </columns>
                     </TableView>
-                    <Button fx:id="cmdNewOrder" layoutY="14.0" mnemonicParsing="false" onAction="#cmdNewOrder_Click" text="Neu" AnchorPane.rightAnchor="53.0" />
+                    <Button fx:id="cmdNewOrder" layoutY="14.0" mnemonicParsing="false" onAction="#cmdNewOrder_Click" text="Neu" textAlignment="LEFT" AnchorPane.rightAnchor="53.0" />
                     <Button fx:id="cmdDelOrder" layoutY="46.0" mnemonicParsing="false" onAction="#cmdDelOrder_click" text="Löschen" AnchorPane.rightAnchor="32.0" />
-                    <Button fx:id="cmdPrintOrder" layoutY="129.0" mnemonicParsing="false" text="Ausdrucken" AnchorPane.rightAnchor="13.0" />
+                    <Button fx:id="cmdPrintOrder" layoutY="129.0" mnemonicParsing="false" onMouseClicked="#cmdPrintOrder_click" text="Ausdrucken" AnchorPane.rightAnchor="13.0" />
                     <Label layoutX="243.0" layoutY="14.0" text="" />
                     <Button fx:id="cmdFinalizeOrder" layoutY="78.0" mnemonicParsing="false" onAction="#cmdFinalizeOrder_click" prefHeight="43.0" prefWidth="84.0" text="Bestellung abschließen" wrapText="true" AnchorPane.rightAnchor="12.0" />
-                    <Label id="lblOrders" fx:id="lblWaiter" layoutY="6.0" prefWidth="188.0" text="lblWaiter" AnchorPane.rightAnchor="111.0" />
+                    <Label id="lblOrders" fx:id="lblWaiter" layoutY="6.0" prefWidth="188.0" text="lblWaiter" AnchorPane.leftAnchor="109.0" AnchorPane.rightAnchor="111.0" />
                     <Label id="lblOrders" layoutX="14.0" layoutY="6.0" prefWidth="96.0" text="Bestellungen von" />
                   </children>
                 </AnchorPane>
@@ -68,6 +68,11 @@
                     </ComboBox>
                     <Label layoutY="15.0" text="Tischnummer:" AnchorPane.rightAnchor="109.0" />
                     <TextField fx:id="txtOrderNumber" layoutY="13.0" onAction="#txtOrderNumber_change" onKeyReleased="#txtOrderNumber_change" prefWidth="64.0" AnchorPane.leftAnchor="103.0" AnchorPane.rightAnchor="196.0" />
+                    <Button id="cmdSaveChanging" fx:id="cmdSaveChanges" mnemonicParsing="false" onMouseClicked="#cmdSaveChanges_click" prefHeight="37.0" prefWidth="84.00009999999747" text="Änderungen speichern" textAlignment="LEFT" wrapText="true" AnchorPane.bottomAnchor="44.0" AnchorPane.rightAnchor="14.0">
+                      <font>
+                        <Font size="11.0" />
+                      </font>
+                    </Button>
                   </children>
                 </AnchorPane>
               </items>

@@ -8,11 +8,11 @@ import java.util.Objects;
 /**
  *
  * @author Roman Baschmakov, Viktor Magdych
- * @version 1.0
+ * @version 1.1
  */
 public class OrderBean implements Serializable {
     
-    private int orderNumber;
+    private long orderNumber;
     public static final String PROP_ORDER_NUMBER= "orderNumber";
     
     private TableBean table;
@@ -20,8 +20,6 @@ public class OrderBean implements Serializable {
     
     private int sumOfMoney = 0;
     public static final String PROP_SUM_OF_MONEY = "sumOfMoney";
-    
-    private boolean calculated = false; // to not calculate the sum reduntantly
     
     private boolean finalized = false;
     public static final String PROP_FINALIZED = "finilized";
@@ -46,53 +44,70 @@ public class OrderBean implements Serializable {
     }
     
     /**
-     * 
+     * ctor
      * @param waiter
      * @param orderNumber
-     * @param tableNumber 
+     * @param table 
      */
-    public OrderBean(WaiterBean waiter, int orderNumber, TableBean tableNumber) {
+    public OrderBean(WaiterBean waiter, long orderNumber, TableBean table) {
         this.propertySupport = new PropertyChangeSupport(this);
         this.setWaiter(waiter);
         this.setOrderNumber(orderNumber);
-        this.setTable(tableNumber);
+        this.setTable(table);
     }
     
     /**
-     * 
+     * ctor
+     * @param waiter
+     * @param orderNumber
+     * @param table 
+     * @param sumOfMoney 
+     */
+    public OrderBean(WaiterBean waiter, long orderNumber, TableBean table, int sumOfMoney) {
+        this.propertySupport = new PropertyChangeSupport(this);
+        this.setWaiter(waiter);
+        this.setOrderNumber(orderNumber);
+        this.setTable(table);
+        this.sumOfMoney = sumOfMoney;
+    }
+    
+    /**
+     * ctor
      * @param waiter
      * @param orderNumber
      * @param tableNumber
+     * @param sumOfMoney
      * @param finalized 
      */
-    public OrderBean(WaiterBean waiter, int orderNumber, TableBean tableNumber, boolean finalized) {
+    public OrderBean(WaiterBean waiter, long orderNumber, TableBean tableNumber, int sumOfMoney, boolean finalized) {
         this.propertySupport = new PropertyChangeSupport(this);
         this.setWaiter(waiter);
         this.setOrderNumber(orderNumber);
         this.setTable(tableNumber);
-        this.setFinalize(finalized);
+        this.sumOfMoney = sumOfMoney;
+        this.setFinalized(finalized);
     }
     
     /**
-     * 
+     * Getter for the order number.
      * @return orderNumber
      */
-    public int getOrderNumber() {
+    public long getOrderNumber() {
         return this.orderNumber;
     }
     
     /**
-     * 
+     * Setter for the order number.
      * @param value 
      */
-    public final void setOrderNumber(int value) {
-        int oldValue = this.orderNumber;
+    public final void setOrderNumber(long value) {
+        long oldValue = this.orderNumber;
         this.orderNumber = value;
         this.propertySupport.firePropertyChange(PROP_ORDER_NUMBER, oldValue, this.orderNumber);
     }
     
     /**
-     * 
+     * Getter for the table.
      * @return 
      */
     public TableBean getTable() {
@@ -100,7 +115,7 @@ public class OrderBean implements Serializable {
     }
     
     /**
-     * 
+     * Setter for the table.
      * @param value 
      */
     public final void setTable(TableBean value) {
@@ -110,20 +125,25 @@ public class OrderBean implements Serializable {
     }
     
     /**
-     * 
+     * Getter for the sum.
      * @return sumOfMoney
      */
     public int getSumOfMoney() {
-        if (!calculated)
-            this.calculateSum();
         return this.sumOfMoney;
     }
     
     /**
-     * 
-     * @param value 
+     * Setter for the sum.
+     * @param sumOfMoney
      */
-    private void calculateSum() {
+    public void setSumOfMoney(int sumOfMoney) {
+        this.sumOfMoney = sumOfMoney;
+    }
+    
+    /**
+     * Calculates the current sum. Incremently sums up the prices of all its order items. 
+     */
+    public void calculateSum() {
         int oldValue = this.sumOfMoney;
         this.sumOfMoney = 0;
         for (ItemBean i : orderItems)
@@ -132,7 +152,7 @@ public class OrderBean implements Serializable {
     }
     
     /**
-     * 
+     * Getter for the order's "finalized" state.
      * @return finalized
      */
     public Boolean isFinalized() {
@@ -140,24 +160,24 @@ public class OrderBean implements Serializable {
     }
     
     /**
-     * 
+     * Setter for the order's state "finalized". Sets false by default.
      */
-    public void setFinalize() {
-        this.setFinalize(true);
+    public void setFinalized() {
+        this.setFinalized(true);
     }
     
     /**
-     * 
+     * Setter for the order's state "finalized". Sets false by default.
      * @param value 
      */
-    public final void setFinalize(boolean value) {
+    public final void setFinalized(boolean value) {
         boolean oldValue = this.finalized;
         this.finalized = value;
         this.propertySupport.firePropertyChange(PROP_FINALIZED, oldValue, this.finalized);
     }
     
     /**
-     * 
+     * Getter for the order items.
      * @return orderItems
      */
     public ArrayList<ItemBean> getOrderItems() {
@@ -165,7 +185,7 @@ public class OrderBean implements Serializable {
     }
     
     /**
-     * 
+     * Setter for the order items.
      * @param items
      */
     public void setOrderItems(ArrayList<ItemBean> items) {
@@ -173,7 +193,7 @@ public class OrderBean implements Serializable {
     }
     
     /**
-     * 
+     * Getter for the waiter.
      * @return waiter
      */
     public WaiterBean getWaiter() {
@@ -181,7 +201,7 @@ public class OrderBean implements Serializable {
     }
     
     /**
-     * 
+     * Setter for the waiter.
      * @param value 
      */
     public final void setWaiter(WaiterBean value) {
@@ -190,6 +210,10 @@ public class OrderBean implements Serializable {
         this.propertySupport.firePropertyChange(PROP_WAITER, oldValue, this.waiter);
     }
     
+    /**
+     * 
+     * @return OrderBean{orderNumber=[], tableNumber=[], sumOfMoney=[], finalized=[], oderItems=[amount], waiter=[name]}
+     */
     @Override
     public String toString() {
         return "OrderBean{" + 
@@ -202,6 +226,11 @@ public class OrderBean implements Serializable {
                 '}';
     }
     
+    /**
+     * Tests another object whether it has the same properties.
+     * @param obj
+     * @return 
+     */
     @Override
     public boolean equals(Object obj) {
         if (obj == this)
@@ -219,10 +248,14 @@ public class OrderBean implements Serializable {
                 && Objects.equals(this.waiter, other.waiter);
     }
     
+    /**
+     * 
+     * @return hash
+     */
     @Override
     public int hashCode() {
         int hash = 3;
-        hash = 67 * hash + this.orderNumber;
+        hash = 67 * hash + Objects.hashCode(this.orderNumber);
         hash = 67 * hash + Objects.hashCode(this.table);
         hash = 67 * hash + this.sumOfMoney;
         hash = 67 * hash + (this.finalized ? 1 : 0);
@@ -232,7 +265,7 @@ public class OrderBean implements Serializable {
     }
     
     /**
-     * 
+     * Add PropertyChangeListener.
      * @param listener 
      */
     public void addPropertyChangeListener(PropertyChangeListener listener) {
@@ -240,7 +273,7 @@ public class OrderBean implements Serializable {
     }
     
     /**
-     * 
+     * Remove PropertyChangeListener.
      * @param listener 
      */
     public void removePropertyChangeListener(PropertyChangeListener listener) {
@@ -248,25 +281,48 @@ public class OrderBean implements Serializable {
     }
 
     /**
-     * 
+     * Class for Exceptions thrown when an order item could not be deleted.
      */
     public static class RemoveOrderItemException extends Exception {
-
+        
+        /**
+         * ctor
+         */
         public RemoveOrderItemException() {
         }
 
+        /**
+         * ctor
+         * @param message 
+         */
         public RemoveOrderItemException(String message) {
             super(message);
         }
 
+        /**
+         * ctor
+         * @param message
+         * @param cause 
+         */
         public RemoveOrderItemException(String message, Throwable cause) {
             super(message, cause);
         }
 
+        /**
+         * ctor
+         * @param cause 
+         */
         public RemoveOrderItemException(Throwable cause) {
             super(cause);
         }
 
+        /**
+         * ctor
+         * @param message
+         * @param cause
+         * @param enableSuppression
+         * @param writableStackTrace 
+         */
         public RemoveOrderItemException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
             super(message, cause, enableSuppression, writableStackTrace);
         }

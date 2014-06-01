@@ -29,7 +29,7 @@ public class TableBean implements Serializable {
     }
     
     /**
-     * Get the value of tableNumber
+     * Getter for the table number.
      *
      * @return the value of tableNumber
      */
@@ -38,7 +38,7 @@ public class TableBean implements Serializable {
     }
 
     /**
-     * Set the value of tableNumber
+     * Setter for the table number.
      *
      * @param tableNumber new value of tableNumber
      */
@@ -50,11 +50,19 @@ public class TableBean implements Serializable {
 
     private transient final PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
 
+    /**
+     * 
+     * @return table number
+     */
     @Override
     public String toString() {
         return String.valueOf(tableNumber);
     }
 
+    /**
+     * 
+     * @return hash
+     */
     @Override
     public int hashCode() {
         int hash = 7;
@@ -62,6 +70,11 @@ public class TableBean implements Serializable {
         return hash;
     }
 
+    /**
+     * Tests another object whether it has the same properties.
+     * @param obj
+     * @return 
+     */
     @Override
     public boolean equals(Object obj) {
         if (obj == null)

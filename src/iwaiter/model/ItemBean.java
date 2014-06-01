@@ -11,6 +11,8 @@ import java.util.Objects;
  */
 public class ItemBean implements Serializable {
     
+    private long id;
+    
     private String name;
     public static final String PROP_NAME = "name";
     
@@ -33,8 +35,9 @@ public class ItemBean implements Serializable {
      * @param name
      * @param price 
      */
-    public ItemBean(String name, int price) {
+    public ItemBean(long id, String name, int price) {
         this.propertySupport = new PropertyChangeSupport(this);
+        this.setId(id);
         this.setName(name);
         this.setPrice(price);
     }
@@ -45,12 +48,29 @@ public class ItemBean implements Serializable {
      */
     public ItemBean(ItemBean item) {
         this.propertySupport = new PropertyChangeSupport(this);
+        this.setId(item.getId());
         this.setName(item.getName());
         this.setPrice(item.getPrice());
     }
+
+    /**
+     * Getter for the name.
+     * @return 
+     */
+    public long getId() {
+        return id;
+    }
+
+    /**
+     * Setter for the id.
+     * @param id 
+     */
+    public void setId(long id) {
+        this.id = id;
+    }
     
     /**
-     * 
+     * Getter for the name.
      * @return name
      */
     public String getName() {
@@ -58,7 +78,7 @@ public class ItemBean implements Serializable {
     }
     
     /**
-     * 
+     * Setter for the name.
      * @param value 
      */
     public final void setName(String value) {
@@ -68,7 +88,7 @@ public class ItemBean implements Serializable {
     }
     
     /**
-     * 
+     * Getter for the price.
      * @return price
      */
     public int getPrice() {
@@ -76,15 +96,19 @@ public class ItemBean implements Serializable {
     }
     
     /**
-     * 
+     * Setter for the price.
      * @param value 
      */
     public final void setPrice(int value) {
-        int oldValue = this.price;
+        long oldValue = this.price;
         this.price = value;
         this.propertySupport.firePropertyChange(PROP_PRICE, oldValue, this.price);
     }
     
+    /**
+     * 
+     * @return ItemBean{name=[name], price=[price]}
+     */
     @Override
     public String toString() {
         return "ItemBean{" + 
@@ -93,6 +117,11 @@ public class ItemBean implements Serializable {
                 '}';
     }
     
+    /**
+     * Tests another object whether it has the same properties.
+     * @param obj
+     * @return 
+     */
     @Override
     public boolean equals(Object obj) {
         if (obj == null)
@@ -104,6 +133,10 @@ public class ItemBean implements Serializable {
                 && this.price == other.price;
     }
     
+    /**
+     * 
+     * @return hash
+     */
     @Override
     public int hashCode() {
         int hash = 7;
@@ -113,7 +146,7 @@ public class ItemBean implements Serializable {
     }
     
     /**
-     * 
+     * Add PropertyChangeListener.
      * @param listener 
      */
     public void addPropertyChangeListener(PropertyChangeListener listener) {
@@ -121,7 +154,7 @@ public class ItemBean implements Serializable {
     }
     
     /**
-     * 
+     * Remove PropertyChangeListener.
      * @param listener 
      */
     public void removePropertyChangeListener(PropertyChangeListener listener) {

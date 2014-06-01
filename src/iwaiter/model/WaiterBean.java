@@ -30,7 +30,7 @@ public class WaiterBean implements Serializable {
     }
     
     /**
-     * 
+     * Getter for the name.
      * @return name
      */
     public String getName() {
@@ -38,7 +38,7 @@ public class WaiterBean implements Serializable {
     }
     
     /**
-     * 
+     * Setter for the name.
      * @param value 
      */
     public final void setName(String value) {
@@ -48,7 +48,7 @@ public class WaiterBean implements Serializable {
     }
     
     /**
-     * 
+     * Getter for the orders.
      * @return orders
      */
     public ArrayList<OrderBean> getOrders() {
@@ -56,13 +56,17 @@ public class WaiterBean implements Serializable {
     }
     
     /**
-     * 
+     * Setter for the orders.
      * @param orders 
      */
     public void setOrders(ArrayList<OrderBean> orders) {
         this.orders = orders;
     }
     
+    /**
+     * 
+     * @return WaiterBean{name=[], orders=[amount]}
+     */
     @Override
     public String toString() {
         return "WaiterBean{" + 
@@ -71,6 +75,11 @@ public class WaiterBean implements Serializable {
                 '}';
     }
     
+    /**
+     * Tests another object whether it has the same properties.
+     * @param obj
+     * @return 
+     */
     @Override
     public boolean equals(Object obj) {
         if (obj == null)
@@ -82,6 +91,10 @@ public class WaiterBean implements Serializable {
                 && this.orders.equals(other.orders);
     }
     
+    /**
+     * 
+     * @return hash
+     */
     @Override
     public int hashCode() {
         int hash = 3;
@@ -91,7 +104,7 @@ public class WaiterBean implements Serializable {
     }
     
     /**
-     * 
+     * Add PropertyChangeListener.
      * @param listener 
      */
     public void addPropertyChangeListener(PropertyChangeListener listener) {
@@ -99,7 +112,7 @@ public class WaiterBean implements Serializable {
     }
     
     /**
-     * 
+     * Remove PropertyChangeListener.
      * @param listener 
      */
     public void removePropertyChangeListener(PropertyChangeListener listener) {
@@ -107,25 +120,48 @@ public class WaiterBean implements Serializable {
     }
     
     /**
-     * 
+     * Class for Exceptions thrown when an order could not be deleted.
      */
     public static class RemoveOrderException extends Exception {
 
+        /**
+         * ctor
+         */
         public RemoveOrderException() {
         }
 
+        /**
+         * ctor
+         * @param message 
+         */
         public RemoveOrderException(String message) {
             super(message);
         }
 
+        /**
+         * ctor
+         * @param message
+         * @param cause 
+         */
         public RemoveOrderException(String message, Throwable cause) {
             super(message, cause);
         }
 
+        /**
+         * ctor
+         * @param cause 
+         */
         public RemoveOrderException(Throwable cause) {
             super(cause);
         }
 
+        /**
+         * ctor
+         * @param message
+         * @param cause
+         * @param enableSuppression
+         * @param writableStackTrace 
+         */
         public RemoveOrderException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
             super(message, cause, enableSuppression, writableStackTrace);
         }
