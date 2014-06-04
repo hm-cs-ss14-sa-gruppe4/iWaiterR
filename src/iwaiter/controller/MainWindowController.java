@@ -6,23 +6,21 @@
 
 package iwaiter.controller;
 
+import iwaiter.model.WaiterBean;
+import iwaiter.model.TableBean;
+import iwaiter.model.OrderBean;
 import iwaiter.model.ItemBean;
+import iwaiter.entity.WaiterEntity;
+import iwaiter.entity.TableEntity;
 import iwaiter.entity.AvailableItemEntity;
 import iwaiter.entity.OrderEntity;
 import iwaiter.entity.OrderItemEntity;
-import iwaiter.model.OrderBean;
-import iwaiter.model.TableBean;
-import iwaiter.entity.TableEntity;
-import iwaiter.model.WaiterBean;
-import iwaiter.entity.WaiterEntity;
 import java.awt.print.PrinterException;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.text.DecimalFormat;
 import java.util.ResourceBundle;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -53,6 +51,11 @@ import javax.swing.JTextPane;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import org.hibernate.SessionFactory;
+import org.hibernate.SessionFactoryObserver;
+import org.hibernate.boot.registry.internal.StandardServiceRegistryImpl;
+import org.hibernate.cfg.Configuration;
+import org.hibernate.service.ServiceRegistry;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -145,7 +148,7 @@ public class MainWindowController extends IWaiterController implements Initializ
     private boolean mutexNoEvent = false; // flag for fxml objects to not interact
     
     /**
-     *Persistence
+     * Persistence
      */
     PersistenceManager pm = new PersistenceManager();
     
@@ -217,7 +220,7 @@ public class MainWindowController extends IWaiterController implements Initializ
     }
     
     /**
-     * Loads the waiters and the tables from the database tables.
+     * Loads waiters, available tables and available order items from the database tables.
      */
     private void loadMainDatabaseTables() {
         // (re-)initialize models
@@ -256,6 +259,8 @@ public class MainWindowController extends IWaiterController implements Initializ
             ExtensionFilter extFilter = new FileChooser.ExtensionFilter("xml-Dateien (*.xml)", "*.xml");
             fileChooser.getExtensionFilters().add(extFilter);
             File file = fileChooser.showOpenDialog(null);
+            if (file == null)
+                return;
             
             // process file
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
@@ -302,6 +307,8 @@ public class MainWindowController extends IWaiterController implements Initializ
                         item.setName(name);
                         item.setPrice(price);
                         pm.create(item);
+                    } else {
+                        pm.findAvailableItem(name).setPrice(price);
                     }
                 }
             }
@@ -313,7 +320,7 @@ public class MainWindowController extends IWaiterController implements Initializ
             loadMainDatabaseTables();
             
         } catch (ParserConfigurationException | SAXException | IOException ex) {
-            Logger.getLogger(MainWindowController.class.getName()).log(Level.SEVERE, null, ex);
+            //Logger.getLogger(MainWindowController.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     

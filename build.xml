@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?><!-- You may freely edit this file. See commented blocks below for --><!-- some examples of how to customize the build. --><!-- (If you delete it and reopen the project it will be recreated.) --><!-- By default, only the Clean and Build commands use this build script. --><project name="iWaiter" default="default" basedir="." xmlns:fx="javafx:com.sun.javafx.tools.ant">
     <description>Builds, tests, and runs the project iWaiter.</description>
     <import file="nbproject/build-impl.xml"/>
+	<target depends="-jfx-copylibs,-rebase-libs,jfx-deployment" name="-post-jar">
+        <!-- Empty placeholder for easier customization. -->
+        <!-- You can override this target in the ../build.xml file. -->
+		<jar compress="${jar.compress}" basedir="${src.dir}" jarfile="${dist.dir}/${application.title}-sources.jar"/>
+    </target>
     <!--
 
     There exist several targets which are by default empty and which can be 

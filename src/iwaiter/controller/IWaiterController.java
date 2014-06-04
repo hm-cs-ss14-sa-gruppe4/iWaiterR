@@ -11,6 +11,7 @@ import iwaiter.entity.OrderEntity;
 import iwaiter.entity.OrderItemEntity;
 import iwaiter.entity.TableEntity;
 import iwaiter.entity.WaiterEntity;
+import java.util.ArrayList;
 import java.util.List;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
@@ -167,7 +168,13 @@ public abstract class IWaiterController {
             Root<Object> rootEntry = cq.from(c);
             CriteriaQuery<Object> all = cq.select(rootEntry);
             TypedQuery<Object> allQuery = em.createQuery(all);
-            return allQuery.getResultList();
+            //try {
+                return allQuery.getResultList();
+            //} catch (Exception e) {
+            //    return new ArrayList<>();
+            //} finally {
+            //    em.close();
+            //}
         }
         
         
@@ -186,6 +193,8 @@ public abstract class IWaiterController {
                 TypedQuery query = em.createQuery(cq);
                 List<WaiterEntity> result = query.getResultList();
                 return (result.size() > 0 ? result.get(0) : null);
+            //} catch (Exception e) {
+            //    return null;
             } finally {
                 em.close();
             }

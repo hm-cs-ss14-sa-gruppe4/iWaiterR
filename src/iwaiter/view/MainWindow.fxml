@@ -27,10 +27,10 @@
                   <children>
                     <TableView fx:id="tblOrder" editable="false" onMouseClicked="#tblOrder_select" prefHeight="150.0" prefWidth="300.0" tableMenuButtonVisible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="109.0" AnchorPane.topAnchor="27.0">
                       <columns>
-                        <TableColumn id="colOrderNumber" maxWidth="10000.0" minWidth="100.0" prefWidth="100.0" text="Bestellnummer" fx:id="colOrderNumber" />
+                        <TableColumn id="colOrderNumber" maxWidth="10000.0" minWidth="80.0" prefWidth="80.0" text="Bestellnr." fx:id="colOrderNumber" />
                         <TableColumn minWidth="50.0" prefWidth="50.0" text="Tisch" fx:id="colOrderTableNumber" />
-                        <TableColumn maxWidth="5000.0" minWidth="50.0" prefWidth="50.0" text="Summe" fx:id="colOrderSum" />
-                        <TableColumn maxWidth="10000.0" minWidth="100.0" prefWidth="100.0" text="Abgeschlossen" fx:id="colOrderFinalized" />
+                        <TableColumn maxWidth="5000.0" minWidth="60.0" prefWidth="60.0" text="Summe" fx:id="colOrderSum" />
+                        <TableColumn maxWidth="10000.0" minWidth="110.0" prefWidth="110.0" text="Abgeschlossen" fx:id="colOrderFinalized" />
                       </columns>
                     </TableView>
                     <Button fx:id="cmdNewOrder" layoutY="14.0" mnemonicParsing="false" onAction="#cmdNewOrder_Click" text="Neu" textAlignment="LEFT" AnchorPane.rightAnchor="53.0" />
