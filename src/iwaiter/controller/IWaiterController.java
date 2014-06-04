@@ -275,6 +275,7 @@ public abstract class IWaiterController {
                 cq.where(cb.equal(root.get("name"), name));
                 TypedQuery query = em.createQuery(cq);
                 List<AvailableItemEntity> result = query.getResultList();
+                System.out.println(result);
                 return (result.size() > 0 ? result.get(0) : null);
             } finally {
                 em.close();
